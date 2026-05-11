@@ -68,6 +68,15 @@ export function LessonPageV2({ lesson }: LessonPageV2Props) {
 
   const turns = useTurns(monitor.entries);
   const playback = usePlayback(monitor.entries.length, runner.running, turns);
+  const { reset: resetRunner } = runner;
+  const { clear: clearMonitor } = monitor;
+  const { reset: resetPlayback } = playback;
+
+  useEffect(() => {
+    resetRunner();
+    clearMonitor();
+    resetPlayback();
+  }, [lesson.slug, resetRunner, clearMonitor, resetPlayback]);
 
   const inputStep = useMemo(() => {
     for (let i = lesson.steps.length - 1; i >= 0; i--) {
@@ -115,7 +124,7 @@ export function LessonPageV2({ lesson }: LessonPageV2Props) {
     const result = await runnerRef.current.runAll(lesson.fullCode);
     if (result) {
       const hasStart = result.traceEvents.some((e) => e.type === "agent_start");
-      monitorRef.current.addFromTrace(result.traceEvents, hasStart ? undefined : "Full code");
+      monitorRef.current.addFromTrace(result.traceEvents, hasStart ? undefined : "完整代码");
       if (result.stdout) monitorRef.current.addOutput(result.stdout);
       if (result.error) {
         trackCodeError(lesson.number, lesson.slug, result.error.includes("Syntax") ? "syntax" : "runtime");
@@ -141,7 +150,7 @@ export function LessonPageV2({ lesson }: LessonPageV2Props) {
           lesson={lesson}
           onFinish={courseComplete.trigger}
           canFinish={isLastLesson && monitor.entries.length > 0}
-          running={runner.running}
+          running={runner.running && runner.runningStepId !== "__all__"}
           prose={<ProseColumn steps={lesson.steps} stepResults={runner.stepResults}
             runningStepId={runner.runningStepId} disabled={runner.running} onRunStep={handleRunStep} />}
           graph={<AgentGraph graph={lesson.graph} entries={monitor.entries} cursor={playback.cursor} turns={turns} />}

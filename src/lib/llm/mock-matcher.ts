@@ -1,7 +1,7 @@
 /**
  * Pattern-matching mock for the Tiny Agents (Free) provider.
  * Maps user messages to OpenAI-format tool_calls or text responses.
- * Covers all sample inputs from lessons 1–9.
+ * Covers Chinese and English sample inputs from lessons 1-9.
  */
 
 export type MockResult =
@@ -43,34 +43,28 @@ function findLastToolResult(messages: Message[]): string | null {
   return null;
 }
 
-/** After a tool runs, summarize the result as a text response. */
 function summarizeToolResult(result: string, messages: Message[]): MockResult {
   const pendingTools = countPendingTools(messages);
   if (pendingTools > 0) {
     return matchToolCall(findLastUserMessage(messages) || "", []) ?? { type: "text", content: result };
   }
-  // Check if the user message has a "then ..." clause with more work to do
   const nextTask = matchNextTask(messages);
   if (nextTask) return nextTask;
-  // Check if result looks like a number (from add tool)
   if (/^\d+(\.\d+)?$/.test(result.trim())) {
-    return { type: "text", content: `The result is ${result.trim()}.` };
+    return { type: "text", content: `结果是 ${result.trim()}。` };
   }
-  // Check if result is all-caps (from upper tool)
   if (result === result.toUpperCase() && /[A-Z]/.test(result)) {
-    return { type: "text", content: `Here it is: ${result.trim()}` };
+    return { type: "text", content: `处理后是：${result.trim()}` };
   }
-  return { type: "text", content: result.trim() || "Done." };
+  return { type: "text", content: result.trim() || "完成。" };
 }
 
-/** Check if user message has a "then X" clause whose tool hasn't been called yet. */
 function matchNextTask(messages: Message[]): MockResult | null {
   const userMsg = findLastUserMessage(messages);
   if (!userMsg) return null;
-  const thenMatch = userMsg.toLowerCase().match(/then\s+(.+)$/);
+  const thenMatch = userMsg.match(/(?:then|然后|再)\s*(.+)$/i);
   if (!thenMatch) return null;
   const remainder = thenMatch[1];
-  // Collect tool names already called in this conversation
   const calledTools = new Set<string>();
   for (const m of messages) {
     if (m.role === "assistant" && m.tool_calls) {
@@ -96,7 +90,6 @@ function countPendingTools(messages: Message[]): number {
   return calls - results;
 }
 
-/** Try to match user message to a tool call, picking the earliest match in the text. */
 function matchToolCall(text: string, toolNames: string[]): MockResult | null {
   const lower = text.toLowerCase();
   const ok = (name: string) => toolNames.includes(name) || toolNames.length === 0;
@@ -104,44 +97,70 @@ function matchToolCall(text: string, toolNames: string[]): MockResult | null {
   type Candidate = { index: number; result: MockResult };
   const candidates: Candidate[] = [];
 
-  // "add N and M"
   const addMatch = lower.match(/add\s+(\d+)\s+and\s+(\d+)/);
   if (addMatch && ok("add")) {
     candidates.push({ index: addMatch.index!, result:
       { type: "tool_call", name: "add", arguments: { a: Number(addMatch[1]), b: Number(addMatch[2]) } } });
   }
 
-  // "uppercase X"
+  const addCnMatch = text.match(/(?:计算|求|先)?\s*(\d+)\s*(?:加|\+)\s*(\d+)/);
+  if (addCnMatch && ok("add")) {
+    candidates.push({ index: addCnMatch.index!, result:
+      { type: "tool_call", name: "add", arguments: { a: Number(addCnMatch[1]), b: Number(addCnMatch[2]) } } });
+  }
+
   const upperMatch = lower.match(/uppercase\s+(.+?)(?:\s+then\s+|$)/);
   if (upperMatch && ok("upper")) {
     candidates.push({ index: upperMatch.index!, result:
       { type: "tool_call", name: "upper", arguments: { text: upperMatch[1].trim() } } });
   }
 
-  // "remember key=value"
+  const upperCnMatch = text.match(/把\s+(.+?)\s*(?:转成|转换成|变成)?大写/);
+  if (upperCnMatch && ok("upper")) {
+    candidates.push({ index: upperCnMatch.index!, result:
+      { type: "tool_call", name: "upper", arguments: { text: upperCnMatch[1].trim() } } });
+  }
+
   const rememberKV = lower.match(/remember\s+(\w+)\s*=\s*(.+?)(?:\s+then\s+|$)/);
   if (rememberKV && ok("remember")) {
     candidates.push({ index: rememberKV.index!, result:
       { type: "tool_call", name: "remember", arguments: { key: rememberKV[1], value: rememberKV[2].trim() } } });
   }
-  // "my name is X"
+
+  const rememberCnKV = text.match(/记住\s+(\w+)\s*=\s*(.+?)(?:(?:，|,)?\s*(?:then|然后|再)\s*|$)/i);
+  if (rememberCnKV && ok("remember")) {
+    candidates.push({ index: rememberCnKV.index!, result:
+      { type: "tool_call", name: "remember", arguments: { key: rememberCnKV[1], value: rememberCnKV[2].trim() } } });
+  }
+
   const nameMatch = lower.match(/my name is (\w+)/);
   if (nameMatch && ok("remember")) {
     candidates.push({ index: nameMatch.index!, result:
       { type: "tool_call", name: "remember", arguments: { key: "name", value: nameMatch[1] } } });
   }
-  // "remember I like X"
+
+  const nameCnMatch = text.match(/我的名字是\s*([A-Za-z0-9_\u4e00-\u9fa5]+)/);
+  if (nameCnMatch && ok("remember")) {
+    candidates.push({ index: nameCnMatch.index!, result:
+      { type: "tool_call", name: "remember", arguments: { key: "name", value: nameCnMatch[1] } } });
+  }
+
   const rememberLike = lower.match(/remember i like (\w+)/);
   if (rememberLike && ok("remember")) {
     candidates.push({ index: rememberLike.index!, result:
       { type: "tool_call", name: "remember", arguments: { key: "preference", value: rememberLike[1] } } });
   }
 
-  // "schedule_followup" — self-scheduling lesson
+  const rememberCnLike = text.match(/记住我喜欢\s*([A-Za-z0-9_\u4e00-\u9fa5]+)/);
+  if (rememberCnLike && ok("remember")) {
+    candidates.push({ index: rememberCnLike.index!, result:
+      { type: "tool_call", name: "remember", arguments: { key: "preference", value: rememberCnLike[1] } } });
+  }
+
   if (toolNames.includes("schedule_followup") && !lower.includes("add") && !lower.includes("upper")) {
     const taskText = text.trim().replace(/^(Research:\s*)+/i, "").trim() || text.trim();
     candidates.push({ index: 0, result:
-      { type: "tool_call", name: "schedule_followup", arguments: { task: `Research: ${taskText}` } } });
+      { type: "tool_call", name: "schedule_followup", arguments: { task: `研究：${taskText}` } } });
   }
 
   if (candidates.length === 0) return null;
@@ -149,32 +168,30 @@ function matchToolCall(text: string, toolNames: string[]): MockResult | null {
   return candidates[0].result;
 }
 
-/** Text-only responses for questions without tools. */
 function matchTextResponse(text: string, messages: Message[] = []): MockResult {
   const lower = text.toLowerCase();
 
-  if (lower.includes("what is an ai agent"))
-    return { type: "text", content: "An AI agent is a program that uses an LLM to decide what to do next. It reads a prompt, calls tools if needed, and loops until the task is done." };
-  if (lower.includes("explain python"))
-    return { type: "text", content: "Python is a high-level, interpreted programming language known for its readable syntax and vast ecosystem." };
-  if (lower.includes("joke"))
-    return { type: "text", content: "Why do programmers prefer dark mode? Because light attracts bugs." };
-  if (lower.includes("what is my name")) {
+  if (lower.includes("what is an ai agent") || text.includes("什么是 AI Agent") || text.includes("什么是 ai agent"))
+    return { type: "text", content: "AI Agent 是一个用 LLM 决定下一步动作的程序。它读取消息，需要时调用工具，并在循环中推进任务直到完成。" };
+  if (lower.includes("explain python") || text.includes("解释 Python") || text.includes("解释 python"))
+    return { type: "text", content: "Python 是一种高级解释型编程语言，语法清晰，生态丰富，常用于 Web、数据分析、自动化和 AI。" };
+  if (lower.includes("joke") || text.includes("笑话"))
+    return { type: "text", content: "一个简短笑话：程序员为什么喜欢深色模式？因为亮光会把 bug 招出来。" };
+  if (lower.includes("what is my name") || text.includes("我的名字是什么")) {
     const name = extractMemoryValue("name", messages);
-    if (name) return { type: "text", content: `Your name is ${name}.` };
-    return { type: "text", content: "I don't have your name in memory yet. Try asking me to remember it first." };
+    if (name) return { type: "text", content: `你的名字是 ${name}。` };
+    return { type: "text", content: "我还没有在记忆里找到你的名字。可以先让我记住它。" };
   }
-  if (lower.includes("what did i just ask"))
-    return { type: "text", content: "You asked me to add 3 and 4." };
-  if (lower.includes("what is python"))
-    return { type: "text", content: "Python is a versatile programming language used for web development, data science, AI, and scripting." };
-  if (lower.includes("delete") || lower.includes("drop"))
-    return { type: "text", content: "I can't help with destructive operations. Try asking me to add numbers or uppercase text instead." };
+  if (lower.includes("what did i just ask") || text.includes("我刚才问了什么"))
+    return { type: "text", content: "你刚才让我计算 3 加 4。" };
+  if (lower.includes("what is python") || text.includes("什么是 Python") || text.includes("什么是 python"))
+    return { type: "text", content: "Python 是一种通用编程语言，常用于 Web 开发、数据科学、AI 和脚本自动化。" };
+  if (lower.includes("delete") || lower.includes("drop") || text.includes("删除") || text.includes("清空"))
+    return { type: "text", content: "我不能帮助执行破坏性操作。可以改问我计算数字或把文本转成大写。" };
 
-  return { type: "text", content: `That's a great question about "${text.slice(0, 40)}". In short: agents are just functions that call LLMs in a loop.` };
+  return { type: "text", content: `这是一个关于“${text.slice(0, 40)}”的好问题。简短说，Agent 就是在循环中调用 LLM、工具和状态的函数。` };
 }
 
-/** Extract a value from the Memory JSON in the system prompt. */
 function extractMemoryValue(key: string, messages: Message[]): string | null {
   const sysMsg = messages.find((m) => m.role === "system");
   if (!sysMsg?.content) return null;

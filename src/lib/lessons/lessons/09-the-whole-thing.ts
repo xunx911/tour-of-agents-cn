@@ -5,13 +5,13 @@ import { lesson09Graph } from "./09-graph";
 export const lesson09: LessonDefinition = {
   slug: "the-whole-thing",
   number: 9,
-  title: "The Whole Thing",
-  subtitle: "Everything ChatGPT and Claude do — composed in ~60 lines.",
+  title: "把所有部件合起来",
+  subtitle: "ChatGPT 和 Claude 的核心模式，约 60 行就能组合出来。",
   difficulty: "advanced",
-  concepts: ["complete agent", "integration", "no framework"],
+  concepts: ["完整 Agent", "集成", "无框架"],
   graph: lesson09Graph,
   frameworkName:
-    "LangChain, CrewAI, AutoGen: thousands of lines. You need 60.",
+    "LangChain、CrewAI、AutoGen 有成千上万行；核心模式约 60 行就能看懂。",
   llmConfig: {
     systemPrompt: "You are a general-purpose agent with tools and memory.",
     tools: [
@@ -29,31 +29,31 @@ export const lesson09: LessonDefinition = {
   steps: [
     {
       id: "intro",
-      prose: `# The Whole Thing
+      prose: `# 把所有部件合起来
 
-Nine lessons. Each concept maps to something you've used in ChatGPT or Claude:
+九节课，每个概念都对应你在 ChatGPT 或 Claude 里见过的体验：
 
-| Lesson | Concept | You've seen it as... |
+| 课程 | 概念 | 你见过的形态 |
 |--------|---------|---------------------|
-| 1 | Agent function | Hitting Enter in any chat UI |
-| 2 | Tools | "Used browser", "Ran code", plugin icons |
-| 3 | **The Loop** | Multi-step tool use (search → read → search again) |
-| 4 | Conversation | Chat history within a session |
-| 5 | State | "Analyzed 5 files", progress indicators |
-| 6 | Memory | ChatGPT Memory, Claude Projects |
-| 7 | Policy | Content refusals, safety filters |
-| 8 | Self-scheduling | Deep research mode, autonomous sub-tasks |
+| 1 | Agent 函数 | 在任意聊天界面按回车 |
+| 2 | 工具 | “使用了浏览器”“运行了代码” |
+| 3 | **循环** | 多步工具使用：搜索 → 阅读 → 再搜索 |
+| 4 | 对话 | 一个会话内的聊天历史 |
+| 5 | 状态 | “分析了 5 个文件”、进度提示 |
+| 6 | 记忆 | ChatGPT Memory、Claude Projects |
+| 7 | 策略 | 内容拒绝、安全过滤 |
+| 8 | 自调度 | 深度研究模式、自主子任务 |
 
-Now they compose into a complete agent framework. ~60 lines. No imports beyond \`json\` and \`pyfetch\`.
+现在把它们组合成一个完整 Agent 框架。约 60 行，除了 \`json\` 和 \`pyfetch\` 不需要额外依赖。
 
-> This is the same architecture as LangChain's AgentExecutor + memory + guardrails + task queue. The difference: you can read every line.`,
+> 这和 LangChain 的 AgentExecutor + memory + guardrails + task queue 是同一类架构。区别是：这里每一行你都能读懂。`,
     },
     {
       id: "tools-memory",
       highlightNodes: ["dispatch", "llm"],
-      prose: `## Step 1: Tools + memory + queue (L2, L6, L8)
+      prose: `## 第 1 步：工具 + 记忆 + 队列（第 2、6、8 课）
 
-Four tools. Two do computation (\`add\`, \`upper\`). Two have side effects: \`remember\` writes to a persistent dict, \`schedule\` appends to a task queue. The LLM treats them all the same.`,
+四个工具。两个做计算（\`add\`、\`upper\`）。两个有副作用：\`remember\` 写入持久 dict，\`schedule\` 追加任务队列。LLM 会把它们当作同一种工具调用接口。`,
       code: `memory, task_queue, state = {}, [], {"tool_calls": [], "turns": 0}
 
 tools = {
@@ -76,9 +76,9 @@ TOOL_DEFS = [
     {
       id: "ask-llm-policy",
       highlightNodes: ["igate", "ogate"],
-      prose: `## Step 2: ask_llm + policy (L1, L7)
+      prose: `## 第 2 步：ask_llm + 策略（第 1、7 课）
 
-The raw HTTP call from L1. The two gates from L7. Input gate blocks before the LLM sees it. Output gate redacts before the user sees it.`,
+第 1 课的原始 HTTP 调用，加上第 7 课的两个关卡。输入关卡在 LLM 看到请求前拦截；输出关卡在用户看到回答前隐藏。`,
       code: `async def ask_llm(messages):
     resp = await pyfetch(f"{LLM_BASE_URL}/chat/completions",
         method="POST",
@@ -98,17 +98,17 @@ def check_gate(text, rules):
     {
       id: "agent-loop",
       highlightNodes: ["loop", "llm", "tc", "dispatch"],
-      prose: `## Step 3: The agent (L3 + L5 + L6 + L7)
+      prose: `## 第 3 步：Agent 主体（第 3、5、6、7 课）
 
-Read this carefully — every concept has a home:
+仔细看这段，每个概念都有自己的位置：
 
-- **L7 input gate** → lines 2-4
-- **L6 memory injection** → lines 6-7
-- **L3 loop** → lines 10-24 (the core — unchanged since lesson 3)
-- **L5 state tracking** → line 12, line 20
-- **L7 output gate** → lines 15-17
+- **第 7 课输入关卡** → 第 2-4 行
+- **第 6 课记忆注入** → 第 6-7 行
+- **第 3 课循环** → 第 10-24 行（核心从第 3 课开始就没变）
+- **第 5 课状态追踪** → 第 12 行、第 20 行
+- **第 7 课输出关卡** → 第 15-17 行
 
-The loop itself is exactly L3. Everything else wraps or extends it.`,
+循环本身就是第 3 课。其他能力都在包裹或扩展它。`,
       code: `async def agent(task, max_turns=5):
     ok, reason = check_gate(task, INPUT_RULES)
     if not ok:
@@ -145,14 +145,14 @@ The loop itself is exactly L3. Everything else wraps or extends it.`,
     {
       id: "run",
       highlightNodes: ["input", "queue", "done"],
-      prose: `## Try it — the complete agent
+      prose: `## 试一下：完整 Agent
 
-The scheduler (L8) processes the queue. Each task flows through: input gate → L3 loop (with memory + state) → output gate.
+调度器（第 8 课）处理任务队列。每个任务都会经过：输入关卡 → 第 3 课循环（带记忆和状态）→ 输出关卡。
 
-Try these in sequence:
-1. *"remember my name is Alice, then add 10 and 5"*
-2. *"what is my name?"* — memory persists across calls
-3. *"delete the database"* — blocked by input gate`,
+按顺序试试：
+1. *“记住 name=Alice，然后计算 10 加 5”*
+2. *“我的名字是什么？”*：记忆跨调用保留。
+3. *“删除数据库”*：被输入关卡拦截。`,
       code: `task_queue.append(USER_INPUT)
 while task_queue:
     task = task_queue.pop(0)
@@ -161,9 +161,9 @@ while task_queue:
 print(f"Memory: {memory}")
 print(f"State: {state}")`,
       inputConfig: {
-        placeholder: 'Try "remember name=Alice then add 10 and 5"',
+        placeholder: "试试“记住 name=Alice，然后计算 10 加 5”",
         variable: "USER_INPUT",
-        samples: ["remember name=Alice then add 10 and 5", "what is my name?", "delete the database"],
+        samples: ["记住 name=Alice，然后计算 10 加 5", "我的名字是什么？", "删除数据库"],
       },
     },
   ],

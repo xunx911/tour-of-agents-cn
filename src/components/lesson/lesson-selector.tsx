@@ -16,6 +16,12 @@ const DIFFICULTY_STYLES: Record<LessonDifficulty, string> = {
   advanced: "bg-violet-500/15 text-violet-400 border-violet-500/30",
 };
 
+const DIFFICULTY_LABELS: Record<LessonDifficulty, string> = {
+  beginner: "入门",
+  intermediate: "进阶",
+  advanced: "高级",
+};
+
 interface LessonSelectorProps {
   current: LessonDefinition;
 }
@@ -31,7 +37,7 @@ export function LessonSelector({ current }: LessonSelectorProps) {
           <h1 className="text-lg font-bold flex items-center gap-1.5">
             {current.number}. {current.title}
             <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-normal ${DIFFICULTY_STYLES[current.difficulty]}`}>
-              {current.difficulty}
+              {DIFFICULTY_LABELS[current.difficulty]}
             </span>
             <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
           </h1>
@@ -63,7 +69,7 @@ export function LessonSelector({ current }: LessonSelectorProps) {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-medium">{lesson.title}</span>
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full border shrink-0 ${DIFFICULTY_STYLES[lesson.difficulty]}`}>
-                      {lesson.difficulty}
+                      {DIFFICULTY_LABELS[lesson.difficulty]}
                     </span>
                   </div>
                   <span className="block text-xs text-muted-foreground mt-0.5">

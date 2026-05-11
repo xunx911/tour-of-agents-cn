@@ -3,7 +3,7 @@ import type { LessonDefinition } from "@/lib/lessons/types";
 import { allLessons } from "@/lib/lessons/registry";
 import { getRelatedLinks } from "@/lib/learn/related-links";
 
-/** Renders lesson step prose as a static readable article for SEO */
+/** Renders lesson step prose as a static readable article. */
 export function ArticleLayout({ lesson }: { lesson: LessonDefinition }) {
   const prev = allLessons.find((l) => l.number === lesson.number - 1);
   const next = allLessons.find((l) => l.number === lesson.number + 1);
@@ -14,7 +14,7 @@ export function ArticleLayout({ lesson }: { lesson: LessonDefinition }) {
       <header className="mb-8">
         <p className="text-sm text-muted-foreground mb-2">
           <Link href="/learn" className="hover:text-foreground">A Tour of Agents</Link>
-          {" / "}Lesson {lesson.number} of {allLessons.length}
+          {" / "}第 {lesson.number} 课，共 {allLessons.length} 课
         </p>
         <h1 className="text-3xl font-bold mb-3">{lesson.title}</h1>
         <p className="text-lg text-muted-foreground">{lesson.subtitle}</p>
@@ -26,7 +26,7 @@ export function ArticleLayout({ lesson }: { lesson: LessonDefinition }) {
           ))}
         </div>
         <p className="text-sm text-muted-foreground mt-4 italic">
-          Framework parallel: {lesson.frameworkName}
+          对应框架概念：{lesson.frameworkName}
         </p>
       </header>
 
@@ -44,21 +44,21 @@ export function ArticleLayout({ lesson }: { lesson: LessonDefinition }) {
       </div>
 
       <aside className="mt-12 p-6 rounded-lg bg-muted/50 border border-border">
-        <p className="font-semibold mb-2">Try it yourself</p>
+        <p className="font-semibold mb-2">自己跑一遍</p>
         <p className="text-sm text-muted-foreground mb-4">
-          This lesson is interactive. Run the code in your browser — no install needed.
+          这节课有交互版本。可以直接在浏览器里运行代码，不需要安装环境。
         </p>
         <Link
           href={`/lesson/${lesson.slug}`}
           className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:opacity-90"
         >
-          Open interactive lesson
+          打开交互课程
         </Link>
       </aside>
 
       {related.length > 0 && (
-        <nav className="mt-10" aria-label="Related reading">
-          <h2 className="text-sm font-semibold text-muted-foreground mb-2">Related reading</h2>
+        <nav className="mt-10" aria-label="相关阅读">
+          <h2 className="text-sm font-semibold text-muted-foreground mb-2">相关阅读</h2>
           <ul className="space-y-1">
             {related.map((r) => (
               <li key={r.href}>
@@ -71,7 +71,7 @@ export function ArticleLayout({ lesson }: { lesson: LessonDefinition }) {
         </nav>
       )}
 
-      <nav className="mt-8 flex justify-between text-sm" aria-label="Lesson navigation">
+      <nav className="mt-8 flex justify-between text-sm" aria-label="课程导航">
         {prev ? (
           <Link href={`/learn/${prev.slug}`} className="text-muted-foreground hover:text-foreground">
             &larr; {prev.title}

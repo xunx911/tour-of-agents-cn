@@ -26,14 +26,14 @@ export function PlaybackControls({ playback, entryCount, turns }: PlaybackContro
         <div className="flex items-center gap-0.5 mr-0.5">
           <button onClick={() => playback.goToTurn(activeTurnIndex - 1)}
             disabled={!hasPrevTurn} className={ghost}
-            title="Jump to previous turn and replay it">&#x25C0;</button>
+            title="跳到上一轮并重放">&#x25C0;</button>
           <span className="text-[10px] text-muted-foreground tabular-nums px-0.5 min-w-[5ch] text-center"
-            title={`Viewing turn ${activeTurnIndex + 1} of ${turns.length}`}>
-            Turn {activeTurnIndex + 1}/{turns.length}
+            title={`正在查看第 ${activeTurnIndex + 1} / ${turns.length} 轮`}>
+            第 {activeTurnIndex + 1}/{turns.length} 轮
           </span>
           <button onClick={() => playback.goToTurn(activeTurnIndex + 1)}
             disabled={!hasNextTurn} className={ghost}
-            title="Jump to next turn and replay it">&#x25B6;</button>
+            title="跳到下一轮并重放">&#x25B6;</button>
           <div className="w-px h-4 bg-border/40 mx-1" />
         </div>
       )}
@@ -41,17 +41,17 @@ export function PlaybackControls({ playback, entryCount, turns }: PlaybackContro
       <button onClick={turns.length > 1 ? playback.replayAll : playback.restart}
         className={ghost}
         title={turns.length > 1
-          ? "Restart from first turn and replay everything"
-          : "Jump back to the first step"}>
+          ? "从第一轮开始重放全部"
+          : "回到第一步"}>
         &#x27F2;
       </button>
 
       <button onClick={playback.stepBack} disabled={cursor <= 0 && !isLive}
         className={ghost}
-        title="Go back one step in the trace">&#x23EE;</button>
+        title="回退一个 Trace 步骤">&#x23EE;</button>
       <button onClick={playback.stepForward} disabled={atEnd}
         className={ghost}
-        title="Advance one step in the trace">&#x23ED;</button>
+        title="前进一个 Trace 步骤">&#x23ED;</button>
 
       <button onClick={playback.toggleReplay}
         className={`h-7 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1 ${
@@ -60,27 +60,27 @@ export function PlaybackControls({ playback, entryCount, turns }: PlaybackContro
             : "bg-foreground text-background hover:bg-foreground/90"
         }`}
         title={playing
-          ? "Pause the auto-advancing replay"
+          ? "暂停自动回放"
           : atEnd
-            ? "Replay the current turn from the start"
-            : "Auto-advance through steps at the selected speed"}
+            ? "从头重放当前轮"
+            : "按当前速度自动播放 Trace 步骤"}
       >
-        {playing ? "\u23F8 Pause" : atEnd ? "\u21BB Replay" : "\u25B6 Play"}
+        {playing ? "\u23F8 暂停" : atEnd ? "\u21BB 重放" : "\u25B6 播放"}
       </button>
 
       <span className="text-[10px] text-muted-foreground tabular-nums px-1"
-        title={`Currently at step ${Math.min(cursor + 1, entryCount)} out of ${entryCount} total trace steps`}>
-        Step {Math.min(cursor + 1, entryCount)}<span className="opacity-50">/{entryCount}</span>
+        title={`当前位于第 ${Math.min(cursor + 1, entryCount)} / ${entryCount} 个 Trace 步骤`}>
+        步骤 {Math.min(cursor + 1, entryCount)}<span className="opacity-50">/{entryCount}</span>
       </span>
 
       <div className="ml-auto">
         <select value={speed} onChange={(e) => playback.setSpeed(Number(e.target.value))}
           className="text-[11px] bg-muted border rounded-md px-1.5 py-1 cursor-pointer"
-          title="How fast steps auto-advance during replay (persisted across lessons)">
-          <option value={1500}>Slow</option>
-          <option value={800}>Normal</option>
-          <option value={400}>Fast</option>
-          <option value={150}>Fastest</option>
+          title="自动回放速度，会在课程间保留">
+          <option value={1500}>慢</option>
+          <option value={800}>正常</option>
+          <option value={400}>快</option>
+          <option value={150}>最快</option>
         </select>
       </div>
     </div>

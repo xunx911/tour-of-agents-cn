@@ -14,20 +14,20 @@ interface TourStep {
 const STEPS: TourStep[] = [
   {
     target: "prose-column",
-    title: "Lesson Content",
-    body: "Read the lesson here. Each step builds on the last, with inline code you can run directly.",
+    title: "课程内容",
+    body: "在这里阅读课程。每一步都会接上上一段，并带有可直接运行的代码。",
     position: "center",
   },
   {
     target: "agent-graph",
-    title: "Agent Graph",
-    body: "See how the agent's components connect. Nodes light up as you run code.",
+    title: "Agent 图谱",
+    body: "这里展示 Agent 各部件如何连接。运行代码时，对应节点会被点亮。",
     position: "bottom",
   },
   {
     target: "sample-chips",
-    title: "Try it now!",
-    body: "Click any of these to send it to the agent. Watch the graph light up as it runs.",
+    title: "现在试一下",
+    body: "点击任意示例，把它发送给 Agent。运行时可以观察右侧图谱的变化。",
     position: "top",
     triggerOnFinish: true,
   },
@@ -127,17 +127,17 @@ export function TourGuide() {
           {step > 0 && (
             <button onClick={prev}
               className="text-xs text-muted-foreground hover:text-foreground">
-              Back
+              上一步
             </button>
           )}
           <div className="flex-1" />
           <button onClick={() => finish()}
             className="text-xs text-muted-foreground hover:text-foreground">
-            Skip
+            跳过
           </button>
           <button onClick={next}
             className="px-3 py-1 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90">
-            {step < STEPS.length - 1 ? "Next" : STEPS[step].triggerOnFinish ? "Try it!" : "Done"}
+            {step < STEPS.length - 1 ? "下一步" : STEPS[step].triggerOnFinish ? "试一下" : "完成"}
           </button>
         </div>
       </div>
@@ -167,9 +167,9 @@ export function TourButton() {
     window.dispatchEvent(new Event("tour:start"));
   };
   return (
-    <button onClick={start} title="Start tour"
+    <button onClick={start} title="开始导览"
       className="h-7 px-2 text-xs rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-      ? Tour
+      ? 导览
     </button>
   );
 }

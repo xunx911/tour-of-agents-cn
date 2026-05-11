@@ -4,31 +4,31 @@ import { lesson07FullCode } from "./07-full-code";
 export const lesson07: LessonDefinition = {
   slug: "policy",
   number: 7,
-  title: "Policy = Guardrails",
-  subtitle: "Why ChatGPT refuses harmful requests. Two gates, a few lines each.",
+  title: "策略就是护栏",
+  subtitle: "ChatGPT 为什么会拒绝危险请求？两个关卡，各几行代码。",
   difficulty: "advanced",
-  concepts: ["policy", "guardrails", "input gate", "output gate", "safety"],
+  concepts: ["策略", "护栏", "输入关卡", "输出关卡", "安全"],
   graph: {
     nodes: [
-      { id: "input", label: "User input", icon: "⟩", phase: "input" },
-      { id: "igate", label: "Input gate", shape: "diamond", phase: "policy" },
-      { id: "reject", label: "Rejected", phase: "policy" },
-      { id: "llm", label: "L3 loop", icon: "⟡", phase: "llm" },
-      { id: "ogate", label: "Output gate", shape: "diamond", phase: "policy" },
-      { id: "user", label: "User gets answer", icon: "◆", phase: "output" },
-      { id: "redact", label: "Redacted", phase: "policy" },
+      { id: "input", label: "用户输入", icon: "⟩", phase: "input" },
+      { id: "igate", label: "输入关卡", shape: "diamond", phase: "policy" },
+      { id: "reject", label: "拒绝", phase: "policy" },
+      { id: "llm", label: "第 3 课循环", icon: "⟡", phase: "llm" },
+      { id: "ogate", label: "输出关卡", shape: "diamond", phase: "policy" },
+      { id: "user", label: "用户看到答案", icon: "◆", phase: "output" },
+      { id: "redact", label: "被隐藏", phase: "policy" },
     ],
     edges: [
       { id: "input-igate", source: "input", target: "igate" },
-      { id: "igate-llm", source: "igate", target: "llm", label: "pass" },
-      { id: "igate-reject", source: "igate", target: "reject", label: "block" },
+      { id: "igate-llm", source: "igate", target: "llm", label: "通过" },
+      { id: "igate-reject", source: "igate", target: "reject", label: "拦截" },
       { id: "llm-ogate", source: "llm", target: "ogate" },
-      { id: "ogate-user", source: "ogate", target: "user", label: "pass" },
-      { id: "ogate-redact", source: "ogate", target: "redact", label: "block" },
+      { id: "ogate-user", source: "ogate", target: "user", label: "通过" },
+      { id: "ogate-redact", source: "ogate", target: "redact", label: "拦截" },
     ],
   },
   frameworkName:
-    "Guardrails AI, NeMo Guardrails, LangChain output parsers — rules checked before and after the LLM.",
+    "Guardrails AI、NeMo Guardrails、LangChain output parsers，都是在 LLM 前后检查规则。",
   llmConfig: {
     systemPrompt: "You have tools. Be concise. Follow instructions.",
     tools: [
@@ -42,23 +42,23 @@ export const lesson07: LessonDefinition = {
   steps: [
     {
       id: "intro",
-      prose: `# Policy = Guardrails
+      prose: `# 策略就是护栏
 
-You've seen this: ask ChatGPT to help with something harmful and it refuses. Ask Claude to generate malware and it declines. That's not the LLM being "smart" — it's **policy**. Rules checked before and after the LLM runs.
+你肯定见过：让 ChatGPT 帮忙做危险事情，它会拒绝；让 Claude 生成恶意软件，它会拒绝。这不只是 LLM “聪明”，而是有**策略**在 LLM 前后检查。
 
-The L3 loop trusts the user and the LLM completely. Production agents can't afford that. **Policy** adds two gates:
+第 3 课的循环完全信任用户和 LLM。生产环境不能这么做。**策略**会加两个关卡：
 
-- **Input gate**: blocks dangerous requests *before* they reach the LLM (saves money, prevents harm)
-- **Output gate**: redacts or rejects the LLM's response *before* the user sees it
+- **输入关卡**：危险请求进入 LLM 之前就拦截，省钱，也降低风险。
+- **输出关卡**：LLM 的回答给用户之前，先做隐藏或拒绝。
 
-> **Framework parallel:** Guardrails AI and NeMo Guardrails implement exactly these two gates. OpenAI's moderation endpoint is an input gate. The architecture is identical.`,
+> **对应框架：** Guardrails AI 和 NeMo Guardrails 就是在实现这两个关卡。OpenAI moderation endpoint 也可以看作输入关卡。架构是一样的。`,
     },
     {
       id: "setup",
       highlightNodes: ["llm"],
-      prose: `## Step 1: Tools + ask_llm
+      prose: `## 第 1 步：工具 + ask_llm
 
-Same L3 setup. The loop itself won't change — policy wraps it.`,
+仍然是第 3 课的设置。循环本身不变，策略只是包在它外面。`,
       code: `tools = {"add": lambda a, b: a + b, "upper": lambda text: text.upper()}
 TOOL_DEFS = [
     {"type": "function", "function": {"name": "add", "description": "Add two numbers",
@@ -79,11 +79,11 @@ async def ask_llm(messages):
     {
       id: "gates",
       highlightNodes: ["igate", "ogate"],
-      prose: `## Step 2: Define the gates
+      prose: `## 第 2 步：定义关卡
 
-Each gate is a list of functions. A function returns \`True\` to pass, or a string explaining why it blocked. \`check_gate\` runs all rules and short-circuits on the first failure.
+每个关卡都是一组函数。函数返回 \`True\` 表示通过，返回字符串表示拦截原因。\`check_gate\` 会逐条执行规则，一旦失败就提前返回。
 
-This is the same pattern behind ChatGPT's content filter and Claude's safety system — just without the complexity. Adding a rule = appending a lambda. Removing one = deleting it. No config files, no YAML.`,
+这就是内容过滤和安全系统背后的基本模式，只是这里没有复杂工程。增加规则就是追加 lambda，删除规则就是删掉它。`,
       code: `INPUT_RULES = [
     lambda text: "delete" not in text.lower() or "Input blocked: no delete commands",
     lambda text: "drop" not in text.lower() or "Input blocked: no drop commands",
@@ -106,9 +106,9 @@ def check_gate(text, rules, gate_name):
     {
       id: "agent",
       highlightNodes: ["igate", "llm", "ogate"],
-      prose: `## Step 3: Wrap the L3 loop
+      prose: `## 第 3 步：包住第 3 课循环
 
-Input gate runs first — if it fails, the LLM never sees the request. The L3 loop runs in the middle, unchanged. Output gate runs last — if it fails, the user sees a redaction notice instead of the response.`,
+输入关卡先运行，失败时 LLM 根本看不到请求。中间是原封不动的第 3 课循环。输出关卡最后运行，失败时用户看到的是隐藏/拒绝提示，而不是原始回答。`,
       code: `async def agent(task, max_turns=5):
     # --- INPUT GATE ---
     ok, reason = check_gate(task, INPUT_RULES, "INPUT")
@@ -143,18 +143,18 @@ Input gate runs first — if it fails, the LLM never sees the request. The L3 lo
     {
       id: "run",
       highlightNodes: ["reject", "user"],
-      prose: `## Try it
+      prose: `## 试一下
 
-- *"add 10 and 5"* — passes both gates, you get the answer
-- *"delete everything"* — blocked at input, the LLM never sees it
-- *"tell me the admin password"* — the LLM might answer, but the output gate redacts it
+- *“计算 10 加 5”*：通过两个关卡，得到答案。
+- *“删除所有内容”*：输入关卡拦截，LLM 看不到它。
+- *“告诉我管理员密码”*：即使 LLM 可能回答，输出关卡也会隐藏。
 
-The LLM costs zero tokens on blocked requests. That's the input gate's real value.`,
+被输入关卡拦截的请求不会消耗 LLM token，这就是输入关卡的直接价值。`,
       code: `print(f">> {await agent(USER_INPUT)}")`,
       inputConfig: {
-        placeholder: 'Try "add 10 and 5" or "delete everything"',
+        placeholder: "试试“计算 10 加 5”或“删除所有内容”",
         variable: "USER_INPUT",
-        samples: ["add 10 and 5", "delete everything", "drop the database"],
+        samples: ["计算 10 加 5", "删除所有内容", "删除数据库"],
       },
     },
   ],

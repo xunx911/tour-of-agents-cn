@@ -39,7 +39,7 @@ export function InlineCodeBlock({
           disabled={running || disabled}
           size="sm"
           className="absolute top-2 right-2 h-7 w-7 p-0 opacity-70 group-hover:opacity-100 transition-opacity"
-          title="Run"
+          title="运行"
         >
           {running ? (
             <span className="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full" />

@@ -38,5 +38,5 @@ async def run_queue(tasks, max_tasks=5):
         task = task_queue.pop(0); i += 1
         results.append({"task": task, "result": await agent(task)})
     return results
-for r in await run_queue(["research AI safety and schedule a summarize follow-up"]):
+for r in await run_queue(["研究 AI 安全，并安排后续总结"]):
     print(f">> [{r['task']}] {r['result']}")`;

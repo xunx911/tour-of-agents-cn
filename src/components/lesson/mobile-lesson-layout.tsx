@@ -68,7 +68,7 @@ export function MobileLessonLayout({
             }`}
           >
             <BookOpen className="h-5 w-5" />
-            Learn
+            学习
           </button>
           <button
             onClick={() => setTab("run")}
@@ -77,19 +77,19 @@ export function MobileLessonLayout({
             }`}
           >
             <Play className="h-5 w-5" />
-            Run
+            运行
           </button>
           {next ? (
             <Link href={`/lesson/${next.slug}`}
               className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium text-muted-foreground active:text-foreground">
               <ChevronRight className="h-5 w-5" />
-              Next
+              下一课
             </Link>
           ) : isLast && canFinish ? (
             <button onClick={onFinish}
               className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[10px] font-medium text-primary">
               <ChevronRight className="h-5 w-5" />
-              Finish
+              完成
             </button>
           ) : (
             <div className="flex-1" />

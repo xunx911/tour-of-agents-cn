@@ -57,7 +57,7 @@ export function InputBar({
           <button type="button" onClick={() => setShowSettings(true)}
             className="hidden md:flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md border border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
             <Key className="h-3.5 w-3.5" />
-            Add a free Groq API key to ask custom questions
+            添加 Groq API Key 后可自由提问
           </button>
           <ApiKeyDialog open={showSettings} onOpenChange={setShowSettings} />
         </>
@@ -74,11 +74,11 @@ export function InputBar({
           <button type="button" onClick={() => handleSend()}
             disabled={running || disabled || !input.trim()}
             className="px-4 py-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >{running ? "Running..." : "Send"}</button>
+          >{running ? "运行中..." : "发送"}</button>
           {entryCount > 0 && (
             <button type="button" onClick={onClear}
               className="px-3 py-1.5 text-xs rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            >Clear</button>
+            >清空</button>
           )}
         </div>
       )}

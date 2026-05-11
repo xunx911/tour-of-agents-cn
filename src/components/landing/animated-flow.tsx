@@ -5,12 +5,12 @@ import { NODE_STYLES, GRAPH, resolveColor } from "@/lib/graph/colors";
 import { useDarkMode } from "@/hooks/use-dark-mode";
 
 const STEPS = [
-  { id: "user", label: "User" },
+  { id: "user", label: "用户" },
   { id: "llm1", label: "LLM" },
-  { id: "tool", label: "Tool" },
-  { id: "result", label: "Result" },
+  { id: "tool", label: "工具" },
+  { id: "result", label: "结果" },
   { id: "llm2", label: "LLM" },
-  { id: "done", label: "Done" },
+  { id: "done", label: "完成" },
 ] as const;
 
 const FRAMES = [

@@ -25,7 +25,7 @@ export function FullCodeBlock({
   return (
     <div className="px-6 py-4">
       <p className="text-sm font-medium mb-2 text-muted-foreground">
-        Full code ({lineCount} lines)
+        完整代码（{lineCount} 行）
       </p>
       <div className="rounded-lg border shiki-wrapper overflow-hidden">
         <div className="relative">
@@ -49,11 +49,11 @@ export function FullCodeBlock({
             {running ? (
               <>
                 <span className="animate-spin inline-block w-3 h-3 border-2 border-current border-t-transparent rounded-full" />
-                Running
+                运行中
               </>
             ) : (
               <>
-                <span className="text-sm">&#9654;</span> Run All
+                <span className="text-sm">&#9654;</span> 运行完整代码
               </>
             )}
           </Button>

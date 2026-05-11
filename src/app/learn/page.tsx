@@ -7,17 +7,16 @@ import { ListJsonLd } from "@/components/seo/list-json-ld";
 const SITE = "https://tinyagents.dev";
 
 export const metadata: Metadata = {
-  title: "Learn AI Agents from Scratch — A Tour of Agents",
+  title: "从零学习 AI Agent — A Tour of Agents",
   description:
-    "9 lessons that teach you how AI agents work by building one from scratch in Python. No framework, no install. Covers tool calling, the agent loop, memory, guardrails, and self-scheduling.",
+    "9 节交互课程，用 Python 从零理解 AI Agent：工具调用、Agent 循环、记忆、策略和自调度。",
   keywords: [
-    "learn AI agents", "build AI agent", "AI agent tutorial",
-    "LangChain tutorial", "agent from scratch", "Python AI agent",
-    "LLM tool calling", "agent loop", "ReAct pattern",
+    "学习 AI Agent", "AI Agent 教程", "Python AI Agent",
+    "LLM 工具调用", "Agent 循环", "ReAct 模式",
   ],
   openGraph: {
-    title: "Learn AI Agents from Scratch — A Tour of Agents",
-    description: "9 lessons. 60 lines of Python. No framework. Learn how ChatGPT and Claude work under the hood.",
+    title: "从零学习 AI Agent — A Tour of Agents",
+    description: "9 节交互课程，用 60 行 Python 理解 LLM Agent 的底层模式。",
     url: `${SITE}/learn`,
     type: "website",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -28,18 +27,18 @@ export const metadata: Metadata = {
 export default function LearnIndex() {
   const listItems = allLessons.map((l) => ({
     url: `${SITE}/learn/${l.slug}`,
-    name: `Lesson ${l.number}: ${l.title}`,
+    name: `第 ${l.number} 课：${l.title}`,
   }));
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
       <ListJsonLd items={listItems} />
       <h1 className="text-3xl font-bold mb-3">
-        Build an AI Agent from Scratch
+        从零搭一个 AI Agent
       </h1>
       <p className="text-lg text-muted-foreground mb-8">
-        9 lessons that teach you how LangChain, CrewAI, and AutoGen work under
-        the hood — by building the same thing in ~60 lines of Python.
+        9 节交互课程，用约 60 行 Python 看懂 LangChain、CrewAI、AutoGen
+        这类框架底层在做什么。
       </p>
 
       <div className="space-y-6">
@@ -73,16 +72,15 @@ export default function LearnIndex() {
       </div>
 
       <section className="mt-12 p-6 rounded-lg bg-muted/50 border border-border">
-        <h2 className="font-semibold mb-2">Prefer interactive?</h2>
+        <h2 className="font-semibold mb-2">想边看边跑？</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          These lessons also run as interactive exercises — write and execute
-          Python in your browser with no setup.
+          这些课程也可以作为交互练习运行：无需配置环境，直接在浏览器里写并执行 Python。
         </p>
         <Link
           href="/lesson/agent-function"
           className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:opacity-90"
         >
-          Start the interactive course
+          开始交互课程
         </Link>
       </section>
     </main>

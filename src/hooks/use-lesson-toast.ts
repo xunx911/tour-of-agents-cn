@@ -20,7 +20,7 @@ export function useLessonToast(lessonNumber: number) {
         toast.success(msg, {
           duration: 5000,
           action: {
-            label: "Next lesson",
+            label: "下一课",
             onClick: () => { window.location.href = `/lesson/${nextSlug}`; },
           },
         });

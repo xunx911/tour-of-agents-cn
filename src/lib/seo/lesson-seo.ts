@@ -7,87 +7,84 @@ export interface LessonSeo {
 }
 
 /**
- * Auto-generate SEO description from lesson data.
- * Combines subtitle hook + concepts + framework comparison.
+ * Auto-generate the short description shown on article-style lesson pages.
  */
 function generateDescription(lesson: LessonDefinition): string {
   const descriptions: Record<string, string> = {
     "agent-function":
-      "An AI agent is just a function that POSTs to an LLM API. Build one from scratch in Python and see what LangChain AgentExecutor, CrewAI, and AutoGen abstract away.",
+      "AI Agent 本质上就是一个向 LLM API 发 POST 请求的函数。用 Python 从零写一遍，看懂 LangChain、CrewAI、AutoGen 在包装什么。",
     tools:
-      "LLM tool calling is a dictionary lookup: tools[name](**args). Build function calling from scratch in Python and see what LangChain's @tool decorator hides.",
+      "LLM 工具调用本质上是一次字典查找：tools[name](**args)。从零实现函数调用，看懂 @tool 这类抽象隐藏了什么。",
     "agent-loop":
-      "The agent loop is a while loop: call the LLM, execute tools, repeat until done. Build the core loop behind LangChain AgentExecutor and OpenAI Agents SDK.",
+      "Agent 循环就是 while 循环：调用 LLM、执行工具、继续调用，直到结束。亲手写出 AgentExecutor 背后的核心模式。",
     conversation:
-      "ChatGPT remembers context because conversation is a messages array. Build multi-turn chat from scratch and see how context windows actually work.",
+      "ChatGPT 能记住上下文，是因为对话就是一个 messages 数组。从零实现多轮聊天，看懂上下文窗口真正怎么工作。",
     state:
-      "Track structured data alongside LLM conversations with a plain Python dict. Build what LangGraph state channels do — no framework required.",
+      "用普通 Python 字典在 LLM 对话旁边记录结构化状态。不用框架，也能理解 LangGraph 状态通道在做什么。",
     memory:
-      "ChatGPT Memory persists facts across chats using key-value storage. Build persistent agent memory from scratch — what Mem0, Zep, and LangChain do under the hood.",
+      "ChatGPT Memory 会跨对话保存事实，底层可以先理解成键值存储。亲手实现持久记忆，看懂 Mem0、Zep、LangChain 的基础模式。",
     policy:
-      "ChatGPT refuses harmful requests using input and output gates. Build AI guardrails in a few lines of Python — what Guardrails AI and NeMo Guardrails abstract away.",
+      "ChatGPT 会拒绝危险请求，靠的是输入和输出两道关卡。用几行 Python 写出护栏原型，看懂 Guardrails AI 和 NeMo Guardrails 的基础思路。",
     "self-scheduling":
-      "ChatGPT deep research spawns sub-tasks autonomously. Build a self-scheduling agent with a task queue and budget — what CrewAI task delegation does.",
+      "ChatGPT 深度研究会自己拆子任务。用任务队列和预算写一个自调度 Agent，看懂 CrewAI 任务委派背后的模式。",
     "the-whole-thing":
-      "Build a complete AI agent in ~60 lines of Python: tools, memory, guardrails, self-scheduling. Everything LangChain, CrewAI, and AutoGen do — no framework needed.",
+      "用约 60 行 Python 组合出完整 AI Agent：工具、记忆、护栏、自调度。先看懂底层，再决定是否需要框架。",
   };
   return descriptions[lesson.slug] ?? lesson.subtitle;
 }
 
-/** Shared base keywords for all lessons */
 const BASE_KEYWORDS = [
-  "AI agent", "LLM", "Python", "from scratch",
-  "no framework", "interactive tutorial",
+  "AI Agent", "LLM", "Python", "从零实现",
+  "无框架", "交互教程",
 ];
 
-/** Per-lesson search keywords auto-derived from concepts + framework */
 function generateKeywords(lesson: LessonDefinition): string[] {
   const perLesson: Record<string, string[]> = {
     "agent-function": [
-      "build AI agent", "LLM API call", "chat completions",
-      "LangChain alternative", "agent function Python",
-      "HTTP POST LLM", "OpenAI API tutorial",
+      "构建 AI Agent", "LLM API 调用", "chat completions",
+      "LangChain 替代", "agent function Python",
+      "HTTP POST LLM", "OpenAI API 教程",
     ],
     tools: [
-      "LLM tool calling", "function calling", "JSON schema tools",
-      "LangChain tool", "tool dispatch", "AI agent tools",
-      "OpenAI function calling tutorial",
+      "LLM 工具调用", "function calling", "JSON schema tools",
+      "LangChain tool", "工具分发", "AI Agent 工具",
+      "OpenAI function calling 教程",
     ],
     "agent-loop": [
-      "agent loop", "ReAct pattern", "AgentExecutor",
-      "multi-step tool use", "while loop LLM",
-      "OpenAI Agents SDK", "agent reasoning loop",
+      "Agent 循环", "ReAct 模式", "AgentExecutor",
+      "多步工具调用", "while loop LLM",
+      "OpenAI Agents SDK", "Agent 推理循环",
     ],
     conversation: [
-      "conversation history", "multi-turn chat", "context window",
+      "对话历史", "多轮聊天", "上下文窗口",
       "ChatGPT memory", "messages array",
-      "ConversationBufferMemory", "chat history Python",
+      "ConversationBufferMemory", "聊天历史 Python",
     ],
     state: [
-      "agent state management", "LangGraph state channels",
-      "structured tracking", "agent metadata",
-      "state dict Python", "observability LLM",
+      "Agent 状态管理", "LangGraph state channels",
+      "结构化追踪", "Agent 元数据",
+      "state dict Python", "LLM 可观测性",
     ],
     memory: [
-      "AI agent memory", "persistent memory LLM",
-      "Mem0 alternative", "Zep memory", "long-term memory agent",
-      "ConversationSummaryMemory", "cross-session memory",
+      "AI Agent 记忆", "LLM 持久记忆",
+      "Mem0 替代", "Zep memory", "Agent 长期记忆",
+      "ConversationSummaryMemory", "跨会话记忆",
     ],
     policy: [
-      "AI guardrails", "LLM safety", "input output gates",
+      "AI 护栏", "LLM 安全", "输入输出关卡",
       "Guardrails AI", "NeMo Guardrails",
-      "content filtering LLM", "AI policy Python",
+      "LLM 内容过滤", "AI 策略 Python",
     ],
     "self-scheduling": [
-      "self-scheduling agent", "task queue AI",
+      "自调度 Agent", "AI 任务队列",
       "BFS agent", "CrewAI task delegation",
-      "autonomous agent", "deep research agent", "agent sub-tasks",
+      "自主 Agent", "deep research agent", "Agent 子任务",
     ],
     "the-whole-thing": [
-      "complete AI agent", "build agent from scratch",
-      "60 lines Python agent", "LangChain vs from scratch",
-      "CrewAI alternative", "AutoGen alternative",
-      "minimal AI agent",
+      "完整 AI Agent", "从零构建 Agent",
+      "60 行 Python Agent", "LangChain vs 从零实现",
+      "CrewAI 替代", "AutoGen 替代",
+      "最小 AI Agent",
     ],
   };
   return [
@@ -97,7 +94,6 @@ function generateKeywords(lesson: LessonDefinition): string[] {
   ];
 }
 
-/** Get SEO data for a single lesson */
 export function getLessonSeo(lesson: LessonDefinition): LessonSeo {
   return {
     description: generateDescription(lesson),
@@ -105,7 +101,6 @@ export function getLessonSeo(lesson: LessonDefinition): LessonSeo {
   };
 }
 
-/** Get SEO data for all lessons (for sitemap, etc.) */
 export function getAllLessonSeo(): Map<string, LessonSeo> {
   const map = new Map<string, LessonSeo>();
   for (const lesson of allLessons) {

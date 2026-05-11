@@ -21,15 +21,15 @@ export const GROQ_MODELS = [
 
 export const PROVIDER_CONFIGS: Record<LlmProvider, ProviderConfig> = {
   tinyagents: {
-    label: "Tiny Agents",
-    hint: "Free — no API key needed. Mock responses for all lessons.",
+    label: "模拟 LLM",
+    hint: "免费，无需 API Key。所有课程都使用脚本化模拟回答。",
     baseUrl: "/api",
     defaultModel: "tiny-mock-v1",
     needsKey: false,
   },
   groq: {
     label: "Groq",
-    hint: "Free tier — fast inference on open models",
+    hint: "可选真实模型。使用 Groq 的开放模型接口，需要你自己的 API Key。",
     baseUrl: "https://api.groq.com/openai/v1",
     defaultModel: "openai/gpt-oss-120b",
     models: [...GROQ_MODELS],
@@ -115,7 +115,7 @@ export async function testConnection(
       },
       body: JSON.stringify({
         model,
-        messages: [{ role: "user", content: "Say hi in 3 words." }],
+        messages: [{ role: "user", content: "用三个字打招呼。" }],
         max_tokens: 20,
       }),
     });

@@ -46,7 +46,7 @@ export function TraceLog({
   if (visibleEntries.length === 0 && !running) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-xs text-muted-foreground">Run code to see agent activity</p>
+        <p className="text-xs text-muted-foreground">运行代码后会在这里看到 Agent 活动</p>
       </div>
     );
   }
@@ -78,7 +78,7 @@ export function TraceLog({
             }`}>
               <MonitorEntryRow entry={entry} />
               {entry.detail && (
-                <MonitorJsonBlock label={`${entry.role} detail`} data={entry.detail} />
+                <MonitorJsonBlock label="详情" data={entry.detail} />
               )}
             </div>
           </div>
@@ -107,7 +107,7 @@ function TurnHeader({ turn, isActive, isPast, onClick }: {
     >
       <span className="flex-1 h-px bg-border/40" />
       <span className="shrink-0 font-mono">
-        Turn {turn.id + 1}: &quot;{turn.input}&quot;
+        第 {turn.id + 1} 轮：&quot;{turn.input}&quot;
       </span>
       <span className="flex-1 h-px bg-border/40" />
     </button>

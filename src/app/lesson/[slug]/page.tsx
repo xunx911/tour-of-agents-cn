@@ -21,16 +21,9 @@ export async function generateMetadata({
   if (!lesson) return {};
 
   const seo = getLessonSeo(lesson);
-  // Lesson 1 owns the "build an ai agent from scratch in python" exact-match query (autocomplete-confirmed).
-  const title =
-    lesson.number === 1
-      ? `Build an AI Agent from Scratch in Python — Lesson 1: ${lesson.title} | A Tour of Agents`
-      : `Lesson ${lesson.number}: ${lesson.title} — A Tour of Agents`;
+  const title = `第 ${lesson.number} 课：${lesson.title} — A Tour of Agents`;
   const url = `${SITE}/lesson/${slug}`;
-  const description =
-    lesson.number === 1
-      ? `Build an AI agent from scratch in Python — interactive lesson 1 of 9. ${seo.description} Runs in your browser via Pyodide. No install, no framework.`
-      : `Interactive exercise: ${seo.description} Write and run Python in your browser.`;
+  const description = `${seo.description} 直接在浏览器里写并运行 Python，无需安装环境。`;
 
   return {
     title,
@@ -62,7 +55,7 @@ export default async function LessonRoute({
   if (!lesson) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-3.5rem)]">
-        <p className="text-muted-foreground">Lesson not found.</p>
+        <p className="text-muted-foreground">没有找到这节课。</p>
       </div>
     );
   }

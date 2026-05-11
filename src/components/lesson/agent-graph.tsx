@@ -49,7 +49,7 @@ export function AgentGraph({
   if (!graph) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-xs text-muted-foreground">No graph</p>
+        <p className="text-xs text-muted-foreground">暂无图谱</p>
       </div>
     );
   }

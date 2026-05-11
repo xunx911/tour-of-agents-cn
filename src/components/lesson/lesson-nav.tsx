@@ -57,11 +57,11 @@ export function LessonNav({ lesson, onFinish, canFinish }: LessonNavProps) {
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <span className="text-xs text-muted-foreground">
             {lesson.number} / {total}
-            <span className="ml-2 text-primary">{completedCount} done</span>
+            <span className="ml-2 text-primary">已完成 {completedCount} 节</span>
           </span>
           <Link href={`/lesson/${next.slug}`} className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              Next: {next.subtitle}
+              下一课：{next.subtitle}
             </span>
             <Button size="sm" className="text-xs gap-1">
               {next.number}. {next.title} &rarr;
@@ -75,7 +75,7 @@ export function LessonNav({ lesson, onFinish, canFinish }: LessonNavProps) {
               <Button variant="ghost" size="sm" className="text-xs gap-1">
                 <span aria-hidden>&larr;</span>
                 <span className="hidden sm:inline">{prev.number}. {prev.title}</span>
-                <span className="sm:hidden">Prev</span>
+                <span className="sm:hidden">上一课</span>
               </Button>
             </Link>
           ) : (
@@ -84,24 +84,24 @@ export function LessonNav({ lesson, onFinish, canFinish }: LessonNavProps) {
           <span className="text-xs text-muted-foreground">
             {lesson.number} / {total}
             {completedCount > 0 && (
-              <span className="ml-2 text-primary">{completedCount} done</span>
+              <span className="ml-2 text-primary">已完成 {completedCount} 节</span>
             )}
           </span>
           {next ? (
             <Link href={`/lesson/${next.slug}`}>
               <Button variant="ghost" size="sm" className="text-xs gap-1">
                 <span className="hidden sm:inline">{next.number}. {next.title}</span>
-                <span className="sm:hidden">Next</span>
+                <span className="sm:hidden">下一课</span>
                 <span aria-hidden>&rarr;</span>
               </Button>
             </Link>
           ) : isLast && canFinish ? (
             <Button variant="default" size="sm" className="text-xs gap-1" onClick={onFinish}>
-              Finish Course <span aria-hidden>&rarr;</span>
+              完成课程 <span aria-hidden>&rarr;</span>
             </Button>
           ) : isLast ? (
             <span className="text-xs text-muted-foreground">
-              {completedCount === total ? "Course complete" : `${lesson.number}. ${lesson.title}`}
+              {completedCount === total ? "课程已完成" : `${lesson.number}. ${lesson.title}`}
             </span>
           ) : (
             <div />

@@ -18,19 +18,18 @@ export function LearningPath({ progress }: LearningPathProps) {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-12">
-      <h2 className="text-lg font-semibold mb-2 text-center">9 lessons. Each one builds on the last.</h2>
+      <h2 className="text-lg font-semibold mb-2 text-center">9 节课，逐层搭出一个 Agent。</h2>
       <p className="text-sm text-muted-foreground text-center mb-2">
-        Start anywhere. Every lesson runs live in your browser.
+        可以从任意一课开始。每节课都能在浏览器里直接运行。
       </p>
       <p className="text-xs text-muted-foreground/70 text-center mb-6 max-w-md mx-auto">
-        From a single function call to a complete agent framework — learn tool calling,
-        conversation memory, state management, policy gates, and self-scheduling.
+        从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和自调度。
       </p>
 
       {completedCount > 0 && (
         <div className="max-w-xs mx-auto mb-8">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span>{completedCount} / {total} completed</span>
+            <span>{completedCount} / {total} 已完成</span>
             <span>{pct}%</span>
           </div>
           <div className="h-1.5 rounded-full bg-border overflow-hidden">
@@ -70,10 +69,10 @@ export function LearningPath({ progress }: LearningPathProps) {
                       {lesson.title}
                     </h3>
                     <Badge variant="secondary" className="text-[10px]">
-                      {lines} lines
+                      {lines} 行
                     </Badge>
                     {done && (
-                      <Badge className="text-[10px] bg-primary/20 text-primary border-0">Done</Badge>
+                      <Badge className="text-[10px] bg-primary/20 text-primary border-0">已完成</Badge>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
@@ -82,7 +81,7 @@ export function LearningPath({ progress }: LearningPathProps) {
                 </div>
                 <Link href={`/lesson/${lesson.slug}`} className="shrink-0">
                   <Button variant={done ? "outline" : "default"} size="sm" className="text-xs">
-                    {done ? "Review" : seen ? "Continue" : "Start"}
+                    {done ? "复习" : seen ? "继续" : "开始"}
                   </Button>
                 </Link>
               </div>

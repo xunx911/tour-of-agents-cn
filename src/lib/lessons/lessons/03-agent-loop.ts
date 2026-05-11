@@ -4,29 +4,29 @@ import { lesson03FullCode } from "./03-full-code";
 export const lesson03: LessonDefinition = {
   slug: "agent-loop",
   number: 3,
-  title: "The Agent Loop",
-  subtitle: "Claude searching files, then reading, then searching again. That's this loop.",
+  title: "Agent 循环",
+  subtitle: "Claude 先搜索文件、再阅读、再继续搜索，靠的就是这个循环。",
   difficulty: "beginner",
-  concepts: ["agent loop", "multi-turn", "tool protocol", "convergence"],
+  concepts: ["Agent 循环", "多轮", "工具协议", "收敛"],
   graph: {
     direction: "TB",
     nodes: [
-      { id: "start", label: "Build messages", icon: "⟩", phase: "input" },
-      { id: "llm", label: "Ask LLM", icon: "⟡", phase: "llm" },
+      { id: "start", label: "构造消息", icon: "⟩", phase: "input" },
+      { id: "llm", label: "询问 LLM", icon: "⟡", phase: "llm" },
       { id: "check", label: "tool_calls?", shape: "diamond", phase: "decide" },
-      { id: "done", label: "Return answer", icon: "◆", phase: "output" },
-      { id: "exec", label: "Execute tool", icon: "⚙", phase: "tool" },
+      { id: "done", label: "返回答案", icon: "◆", phase: "output" },
+      { id: "exec", label: "执行工具", icon: "⚙", phase: "tool" },
     ],
     edges: [
       { id: "start-llm", source: "start", target: "llm" },
       { id: "llm-check", source: "llm", target: "check" },
-      { id: "check-done", source: "check", target: "done", label: "no" },
-      { id: "check-exec", source: "check", target: "exec", label: "yes" },
+      { id: "check-done", source: "check", target: "done", label: "否" },
+      { id: "check-exec", source: "check", target: "exec", label: "是" },
       { id: "exec-llm", source: "exec", target: "llm" },
     ],
   },
   frameworkName:
-    "LangChain AgentExecutor, OpenAI Agents SDK, AutoGen — a while loop over messages.",
+    "LangChain AgentExecutor、OpenAI Agents SDK、AutoGen，本质上都是围绕 messages 的 while 循环。",
   llmConfig: {
     systemPrompt: "Use tools to answer. Be concise.",
     tools: [
@@ -40,22 +40,22 @@ export const lesson03: LessonDefinition = {
   steps: [
     {
       id: "intro",
-      prose: `# The Agent Loop
+      prose: `# Agent 循环
 
-**This is the most important lesson.** Everything after this builds on this loop.
+**这是最重要的一课。** 后面的所有能力都会建立在这个循环之上。
 
-You've seen this happen in Claude: you ask it to analyze a codebase, and it searches files, reads them, searches again, reads more — multiple steps before giving you an answer. Or ChatGPT with Code Interpreter: it writes code, runs it, sees an error, fixes it, runs again. That's this loop.
+你在 Claude 里见过这种过程：让它分析代码库，它会搜索文件、读取文件、继续搜索、继续阅读，经过多步后才给出答案。ChatGPT 的 Code Interpreter 也类似：写代码、运行、看到错误、修复、再运行。这就是 Agent 循环。
 
-L2's agent made one tool call and stopped. Real agents **loop**: call a tool → see the result → decide what's next → repeat until done. The LLM decides when to stop. No \`tool_calls\` in the response = done.
+第 2 课的 Agent 调一次工具就停了。真实 Agent 会**循环**：调用工具 → 看到结果 → 判断下一步 → 重复直到完成。LLM 决定何时停止。响应里没有 \`tool_calls\`，就代表完成。
 
-This is the entire runtime of LangChain's \`AgentExecutor\`.`,
+这就是 LangChain \`AgentExecutor\` 的运行时核心。`,
     },
     {
       id: "setup",
       highlightNodes: ["call"],
-      prose: `## Step 1: Tools + ask_llm
+      prose: `## 第 1 步：工具 + ask_llm
 
-Same tools as L2. But now \`ask_llm\` takes the full \`messages\` array and returns the raw message object — we need \`tool_calls\` and \`tool_call_id\` for the multi-turn protocol.`,
+工具仍然和第 2 课一样。但现在 \`ask_llm\` 接收完整的 \`messages\` 数组，并返回原始 message 对象。多轮工具协议需要 \`tool_calls\` 和 \`tool_call_id\`。`,
       code: `tools = {"add": lambda a, b: a + b, "upper": lambda text: text.upper()}
 TOOL_DEFS = [
     {"type": "function", "function": {"name": "add", "description": "Add two numbers",
@@ -77,15 +77,15 @@ async def ask_llm(messages):
     {
       id: "loop",
       highlightNodes: ["loop", "call", "check", "exec", "append"],
-      prose: `## Step 2: The loop
+      prose: `## 第 2 步：循环
 
-When Claude runs a multi-step task — say, searching your codebase, then reading files, then writing code — each step is one iteration of this loop:
+当 Claude 执行多步任务，比如搜索代码库、读取文件、再写代码时，每一步都是这个循环的一次迭代：
 
-1. **Call LLM** with the full messages array (everything so far)
-2. **No \`tool_calls\`?** Return the answer — the LLM is done thinking
-3. **Has \`tool_calls\`?** Execute each one, append results with \`tool_call_id\`, loop back
+1. 用完整 messages 数组调用 LLM。
+2. 没有 \`tool_calls\`？返回答案，说明 LLM 认为完成了。
+3. 有 \`tool_calls\`？逐个执行，把结果带着 \`tool_call_id\` 追加回 messages，然后回到循环开头。
 
-The \`tool_call_id\` links each result to its request — without it, when the LLM asks for two tools at once, there's no way to tell which result belongs to which call. This is the **tool calling protocol** — the wire format that makes multi-step work.`,
+\`tool_call_id\` 用来把每个工具结果和原始请求对应起来。没有它，当 LLM 一次请求多个工具时，就分不清哪个结果属于哪个调用。这就是**工具调用协议**。`,
       code: `async def agent(task, max_turns=5):
     messages = [
         {"role": "system", "content": "Use tools to answer. Be concise."},
@@ -115,17 +115,17 @@ The \`tool_call_id\` links each result to its request — without it, when the L
     {
       id: "run",
       highlightNodes: ["start", "done"],
-      prose: `## Try it
+      prose: `## 试一下
 
-- *"add 10 and 5"* — one tool call, one turn
-- *"add 3 and 4, then uppercase hello"* — two tool calls, the LLM chains them
+- *“计算 10 加 5”*：一次工具调用，一轮完成。
+- *“先计算 3 加 4，然后把 hello 转成大写”*：多个工具调用，LLM 会把它们串起来。
 
-Watch the diagram: each turn cycles through the loop. The messages array grows with each tool call.`,
+观察图谱：每一轮都会穿过这个循环。每次工具调用后，messages 数组都会变长。`,
       code: `print(f">> {await agent(USER_INPUT)}")`,
       inputConfig: {
-        placeholder: 'Try "add 10 and 5" or "add 3 and 4, then uppercase hello"',
+        placeholder: "试试“计算 10 加 5”或“先计算 3 加 4，然后把 hello 转成大写”",
         variable: "USER_INPUT",
-        samples: ["add 3 and 4, then uppercase hello", "uppercase agent then add 1 and 2", "add 100 and 200"],
+        samples: ["先计算 3 加 4，然后把 hello 转成大写", "把 agent 转成大写，然后计算 1 加 2", "计算 100 加 200"],
       },
     },
   ],

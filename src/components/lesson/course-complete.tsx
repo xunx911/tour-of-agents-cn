@@ -71,22 +71,21 @@ export function CourseCompleteModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="max-w-md w-full mx-4 p-8 rounded-lg border bg-background shadow-2xl text-center space-y-4">
         <p className="text-3xl font-extrabold tracking-tight">
-          You built an agent framework.
+          你已经搭完一个 Agent 框架。
         </p>
         <p className="text-sm text-muted-foreground">
-          9 lessons. ~60 lines. No magic. You now understand every piece of
-          LangChain, CrewAI, and AutoGen.
+          9 节课，约 60 行核心代码。没有魔法，只有函数、工具、循环、状态和记忆。
         </p>
 
         <div className="pt-2 space-y-3 text-left">
           <div>
             <label className="text-sm font-medium">
-              Your name (for the certificate)
+              你的名字（用于证书）
             </label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Jane Smith"
+              placeholder="你的名字"
               className="mt-1"
               onKeyDown={(e) => e.key === "Enter" && handleGetCert()}
             />
@@ -97,7 +96,7 @@ export function CourseCompleteModal({
             className="w-full"
             size="lg"
           >
-            Get your certificate
+            生成证书
           </Button>
         </div>
 
@@ -105,7 +104,7 @@ export function CourseCompleteModal({
           onClick={onClose}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          Skip
+          跳过
         </button>
       </div>
     </div>

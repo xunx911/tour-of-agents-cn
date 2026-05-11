@@ -2,21 +2,21 @@
 
 const PROPS = [
   {
-    title: "Runs in Your Browser",
+    title: "浏览器里直接运行",
     description:
-      "Python via Pyodide. Real code, real API calls, real traces. No terminal, no venv, no Docker.",
+      "通过 Pyodide 执行 Python。能看到真实代码、请求结构和运行轨迹，不需要终端、虚拟环境或 Docker。",
     icon: ">>",
   },
   {
-    title: "No Framework Required",
+    title: "先看懂本质",
     description:
-      "Raw HTTP calls to the LLM API. See the actual POST request. No SDKs hiding the work.",
+      "从一次 HTTP 请求开始，逐步理解消息、工具、循环、状态和记忆，避免一上来被框架概念淹没。",
     icon: "{}",
   },
   {
-    title: "See What Frameworks Do",
+    title: "再理解框架",
     description:
-      "Every lesson shows the LangChain or CrewAI equivalent \u2014 then the plain Python underneath.",
+      "每节课都把框架背后的普通 Python 模式拆开，让你知道抽象带来了什么，也隐藏了什么。",
     icon: "==",
   },
 ] as const;

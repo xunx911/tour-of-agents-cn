@@ -9,27 +9,27 @@ const roleConfig: Record<
   user: {
     color: "text-blue-400",
     icon: "⟩",
-    label: "user",
+    label: "用户",
   },
   agent: {
     color: "text-emerald-400",
     icon: "◆",
-    label: "agent",
+    label: "Agent",
   },
   tool: {
     color: "text-purple-400",
     icon: "⚙",
-    label: "tool",
+    label: "工具",
   },
   llm: {
     color: "text-amber-400",
     icon: "⟡",
-    label: "llm",
+    label: "LLM",
   },
   system: {
     color: "text-muted-foreground",
     icon: "●",
-    label: "sys",
+    label: "系统",
   },
 };
 

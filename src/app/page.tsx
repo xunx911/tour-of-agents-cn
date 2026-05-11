@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { allLessons } from "@/lib/lessons/registry";
-import { AUTHOR } from "@/lib/seo/author";
 import { AgentLoopPreview } from "@/components/landing/agent-loop-preview";
 import { ValueProps } from "@/components/landing/value-props";
 import { HomepageClient } from "@/components/landing/homepage-client";
@@ -9,22 +8,21 @@ import { HomepageClient } from "@/components/landing/homepage-client";
 const SITE_URL = "https://tinyagents.dev";
 
 export const metadata: Metadata = {
-  title: "A Tour of Agents — Build AI Agents from Scratch in Python",
+  title: "A Tour of Agents — 中文 AI Agent 交互教程",
   description:
-    "Interactive course: build an AI agent from scratch in 60 lines of Python. 9 lessons, no framework, runs in your browser.",
+    "面向中文读者的交互式课程：用 Python 从零理解 AI Agent，浏览器里直接运行。",
   openGraph: {
-    title: "A Tour of Agents",
+    title: "A Tour of Agents 中文交互教程",
     description:
-      "9 lessons. 60 lines of Python. No framework required. Learn how LangChain, CrewAI, and AutoGen work under the hood.",
+      "9 节交互课，用 60 行 Python 理解 LLM Agent 的底层模式。",
     url: SITE_URL,
     siteName: "A Tour of Agents",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
     type: "website",
   },
   keywords: [
-    "AI agents", "build AI agent", "60 lines Python", "LangChain alternative",
-    "agent framework comparison", "AI agent from scratch", "no framework",
-    "interactive course", "Python agent tutorial", "A Tour of Agents",
+    "AI Agent", "LLM", "Python", "工具调用", "Agent 循环",
+    "交互式教程", "A Tour of Agents",
   ],
   alternates: { canonical: SITE_URL },
 };
@@ -37,17 +35,15 @@ export default function HomePage() {
       <ValueProps />
       <section className="max-w-2xl mx-auto px-6 py-12">
         <h2 className="text-lg font-semibold mb-2 text-center">
-          9 lessons. Each one builds on the last.
+          9 节课，每一节都接上上一节。
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-2">
-          Start anywhere. Every lesson runs live in your browser.
+          可以从任意一课开始。每节课都能在浏览器里直接运行。
         </p>
         <p className="text-xs text-muted-foreground/70 text-center mb-6 max-w-md mx-auto">
-          From a single function call to a complete agent framework — learn
-          tool calling, conversation memory, state management, policy gates,
-          and self-scheduling.
+          从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和自调度。
         </p>
-        <nav aria-label="Course lessons">
+        <nav aria-label="课程列表">
           <ol className="space-y-4">
             {allLessons.map((lesson) => (
               <li key={lesson.slug}>
@@ -73,46 +69,23 @@ export default function HomePage() {
       <section className="border-t">
         <div className="max-w-2xl mx-auto px-6 py-16 text-center">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
-            One function. One HTTP POST.
+            一个函数。一次 HTTP POST。
           </h2>
           <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8">
-            That&apos;s where it starts. The first lesson takes 2 minutes.
+            Agent 的第一层就是这么简单。第一课几分钟就能跑起来。
           </p>
           <Link
             href="/lesson/agent-function"
             className="inline-block px-8 py-3 bg-primary text-primary-foreground rounded-md text-base font-medium hover:opacity-90"
           >
-            Start Lesson 1 &rarr;
+            开始第 1 课 &rarr;
           </Link>
         </div>
       </section>
       <footer className="border-t">
         <div className="max-w-2xl mx-auto px-6 py-8 flex flex-col gap-4 text-xs text-muted-foreground">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p>
-              Built by{" "}
-              <a href={AUTHOR.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
-                {AUTHOR.name}
-              </a>
-            </p>
-            <div className="flex items-center gap-4">
-              <a href={AUTHOR.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">X/Twitter</a>
-              <a href={AUTHOR.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">LinkedIn</a>
-              <a href={AUTHOR.github} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">GitHub</a>
-              <Link href="/blog" className="hover:text-foreground">Blog</Link>
-            </div>
-          </div>
           <p className="text-muted-foreground/60 text-center md:text-left">
-            Looking for HuggingFace tiny-agents (the MCP library)?{" "}
-            <a
-              href="https://huggingface.co/blog/tiny-agents"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground"
-            >
-              That&apos;s here
-            </a>
-            . This is A Tour of Agents — a Python course.
+            当前版本优先保留原课程交互体验，并改造成中文可读的学习路径。
           </p>
         </div>
       </footer>

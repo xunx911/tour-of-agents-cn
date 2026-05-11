@@ -16,7 +16,7 @@ export function AgentLoopPreview() {
     <section className="border-b">
       <div className="max-w-3xl mx-auto px-6 py-12">
         <h2 className="text-lg font-semibold mb-4 text-center">
-          This is the entire agent loop
+          Agent 循环本质上就是这几行
         </h2>
         <div className="bg-muted/50 border rounded-lg p-4 font-mono text-sm leading-relaxed overflow-x-auto">
           <pre className="text-foreground">{AGENT_CODE}</pre>
@@ -25,7 +25,7 @@ export function AgentLoopPreview() {
           <AnimatedFlow />
         </div>
         <p className="text-xs text-muted-foreground text-center mt-3">
-          Watch the loop run. This is what every agent framework does.
+          观察这条循环怎么跑起来。多数 Agent 框架都在围绕它做封装。
         </p>
       </div>
     </section>

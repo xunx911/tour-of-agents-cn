@@ -4,18 +4,18 @@ import { lesson04FullCode } from "./04-full-code";
 export const lesson04: LessonDefinition = {
   slug: "conversation",
   number: 4,
-  title: "Conversation = Messages Array",
-  subtitle: "Why ChatGPT remembers your last message — and why \"New Chat\" forgets.",
+  title: "对话就是消息数组",
+  subtitle: "ChatGPT 为什么记得上一句，而“新对话”为什么会忘。",
   difficulty: "intermediate",
-  concepts: ["conversation history", "multi-turn", "context window", "ChatGPT pattern"],
+  concepts: ["对话历史", "多轮", "上下文窗口", "ChatGPT 模式"],
   graph: {
     nodes: [
-      { id: "conv", label: "Conversation list", icon: "⟩", phase: "input" },
-      { id: "call1", label: "Agent call 1", phase: "llm" },
-      { id: "grow1", label: "List grows", phase: "tool" },
-      { id: "call2", label: "Agent call 2", phase: "llm" },
-      { id: "grow2", label: "Sees full history", phase: "tool" },
-      { id: "answer", label: "Correct answer", icon: "◆", phase: "output" },
+      { id: "conv", label: "对话列表", icon: "⟩", phase: "input" },
+      { id: "call1", label: "第 1 次调用", phase: "llm" },
+      { id: "grow1", label: "列表增长", phase: "tool" },
+      { id: "call2", label: "第 2 次调用", phase: "llm" },
+      { id: "grow2", label: "看到完整历史", phase: "tool" },
+      { id: "answer", label: "正确回答", icon: "◆", phase: "output" },
     ],
     edges: [
       { id: "conv-call1", source: "conv", target: "call1" },
@@ -26,7 +26,7 @@ export const lesson04: LessonDefinition = {
     ],
   },
   frameworkName:
-    "ChatGPT, Claude, every chat agent — the messages array IS the conversation.",
+    "ChatGPT、Claude 和所有聊天 Agent，本质上都是 messages 数组在承载对话。",
   llmConfig: {
     systemPrompt: "You have tools. Use them when needed. Be concise.",
     tools: [
@@ -40,18 +40,18 @@ export const lesson04: LessonDefinition = {
   steps: [
     {
       id: "intro",
-      prose: `# Conversation = Messages Array
+      prose: `# 对话就是消息数组
 
-Open ChatGPT or Claude, send a message, then send another. The second message knows about the first. How? The app sends **every previous message** along with your new one. There's no magic memory — it's literally an array that grows.
+打开 ChatGPT 或 Claude，先发一句，再发第二句。第二句能引用第一句，是因为应用会把**之前所有消息**连同你的新消息一起发送。没有神秘记忆，本质上就是一个不断增长的数组。
 
-In L3, each \`agent()\` call started fresh. **Move the messages array outside**, and now every call sees the full history. That's it. That's what LangChain calls \`ConversationBufferMemory\`. It's a list that doesn't get cleared.`,
+第 3 课里，每次 \`agent()\` 调用都是从空白开始。把 messages 数组**移到函数外面**，每次调用就都能看到完整历史。这就是 LangChain 所谓 \`ConversationBufferMemory\` 的核心：一个不被清空的列表。`,
     },
     {
       id: "setup",
       highlightNodes: ["call1"],
-      prose: `## Step 1: Tools + ask_llm
+      prose: `## 第 1 步：工具 + ask_llm
 
-Identical to L3. Nothing changes here.`,
+和第 3 课完全一样。这里不需要变化。`,
       code: `tools = {"add": lambda a, b: a + b, "upper": lambda text: text.upper()}
 TOOL_DEFS = [
     {"type": "function", "function": {"name": "add", "description": "Add two numbers",
@@ -73,11 +73,11 @@ async def ask_llm(messages):
     {
       id: "conversation",
       highlightNodes: ["conv"],
-      prose: `## Step 2: The conversation array
+      prose: `## 第 2 步：对话数组
 
-One change from L3: the messages array lives **outside** the function. It's initialized once with a system prompt and never cleared.
+相比第 3 课只有一个变化：messages 数组放在函数**外部**。它用 system prompt 初始化一次，然后不再清空。
 
-This is why ChatGPT and Claude can reference your earlier messages — and why starting a "New Chat" forgets everything. New chat = new empty array.`,
+这就是 ChatGPT 和 Claude 能引用你前面消息的原因，也是“新对话”会忘记一切的原因。新对话 = 新的空数组。`,
       code: `conversation = [
     {"role": "system", "content": "You have tools: add(a,b) and upper(text). Use them when needed. Be concise."},
 ]`,
@@ -85,13 +85,13 @@ This is why ChatGPT and Claude can reference your earlier messages — and why s
     {
       id: "agent",
       highlightNodes: ["call1", "grow1", "call2", "grow2"],
-      prose: `## Step 3: The loop with persistent history
+      prose: `## 第 3 步：带持久历史的循环
 
-Same L3 loop. Two additions:
-1. **Before the loop**: append the user's message to \`conversation\`
-2. **After the loop**: append the assistant's response
+仍然是第 3 课的循环，只加两件事：
+1. 循环前，把用户消息追加到 \`conversation\`。
+2. 循环结束后，把 assistant 的回答也追加进去。
 
-Next call, the LLM sees everything from this session.`,
+下一次调用时，LLM 就能看到这一轮会话里的所有内容。`,
       code: `async def agent(user_message, max_turns=5):
     conversation.append({"role": "user", "content": user_message})
     for turn in range(max_turns):
@@ -113,20 +113,20 @@ Next call, the LLM sees everything from this session.`,
     {
       id: "run",
       highlightNodes: ["answer"],
-      prose: `## Try it — multi-turn
+      prose: `## 试一下：多轮对话
 
-Send multiple messages:
-1. *"add 3 and 4"*
-2. *"now uppercase hello"*
-3. *"what were the results?"*
+连续发送多条消息：
+1. *“计算 3 加 4”*
+2. *“把 hello 转成大写”*
+3. *“我刚才问了什么？”*
 
-The agent answers #3 correctly because it sees the full conversation history. Watch the message count grow in the monitor.`,
+Agent 能正确回答第 3 条，因为它看到了完整对话历史。注意监视器里的消息数量会不断增长。`,
       code: `print(f">> {await agent(USER_INPUT)}")
 print(f"({len(conversation)} messages in history)")`,
       inputConfig: {
-        placeholder: 'Try "add 3 and 4", then "what did I just ask?"',
+        placeholder: "试试“计算 3 加 4”，再问“我刚才问了什么？”",
         variable: "USER_INPUT",
-        samples: ["add 3 and 4", "what did I just ask?", "now uppercase the result"],
+        samples: ["计算 3 加 4", "我刚才问了什么？", "把 hello 转成大写"],
       },
     },
   ],

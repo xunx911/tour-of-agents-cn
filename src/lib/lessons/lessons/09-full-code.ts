@@ -51,10 +51,10 @@ async def agent(task, max_turns=5):
             state["tool_calls"].append({"tool": name, "args": args})
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": str(result)})
     return "Max turns"
-task_queue.append("remember name=Alice then add 10 and 5")
+task_queue.append("记住 name=Alice，然后计算 10 加 5")
 while task_queue:
     task = task_queue.pop(0)
     print(f">> {await agent(task)}")
-print(f">> {await agent('what is my name?')}")
+print(f">> {await agent('我的名字是什么？')}")
 print(f"Memory: {memory}")
 print(f"State: {state}")`;

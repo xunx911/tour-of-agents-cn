@@ -69,24 +69,24 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
       {isFree && (
         <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 p-3">
           <p className="text-xs text-emerald-400">
-            No setup needed. Run every lesson instantly with mock responses.
-            Switch to Groq anytime for live LLM answers.
+            无需任何配置。所有课程都可以用模拟回答立即运行。
+            想看真实模型回答时，可以切换到 Groq。
           </p>
         </div>
       )}
 
       {provider === "groq" && !currentKey && (
         <div className="rounded-md bg-blue-500/10 border border-blue-500/20 p-3 space-y-2">
-          <p className="text-xs font-medium text-blue-400">Groq is 100% free — no credit card needed</p>
+          <p className="text-xs font-medium text-blue-400">Groq 提供免费额度，通常无需信用卡</p>
           <p className="text-[11px] text-muted-foreground">
-            The Groq API is completely free to use. Just sign up and grab a key:
+            如需真实 LLM 回答，可以注册 Groq 并粘贴你的 API Key：
           </p>
           <p className="text-[11px] text-muted-foreground">
-            1. Go to{" "}
+            1. 打开{" "}
             <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer"
-              className="text-blue-400 underline">console.groq.com</a>{" "}→ sign up (free, no card)
+              className="text-blue-400 underline">console.groq.com</a>{" "}并注册
           </p>
-          <p className="text-[11px] text-muted-foreground">2. Create an API key and paste it below</p>
+          <p className="text-[11px] text-muted-foreground">2. 创建 API Key，然后粘贴到下方</p>
         </div>
       )}
 
@@ -95,17 +95,17 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
           <div>
             <label className="text-sm font-medium mb-1 block">{config.label} API Key</label>
             <div className="flex gap-2">
-              <input type="password" placeholder={`Enter your ${config.label} key`}
+              <input type="password" placeholder={`粘贴你的 ${config.label} Key`}
                 value={currentKey} onChange={(e) => setKeys({ ...keys, [provider]: e.target.value })}
                 className="flex-1 text-sm p-2 rounded-md border bg-background font-mono" />
               {currentKey && (
                 <Button variant="ghost" size="sm" className="text-xs text-red-400 hover:text-red-300 shrink-0"
-                  onClick={revokeKey}>Revoke</Button>
+                  onClick={revokeKey}>移除</Button>
               )}
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">Model</label>
+            <label className="text-sm font-medium mb-1 block">模型</label>
             <select value={model || config.defaultModel} onChange={(e) => setLocalModel(e.target.value)}
               className="w-full text-sm p-2 rounded-md border bg-background font-mono appearance-none cursor-pointer">
               {GROQ_MODELS.map((m) => (
@@ -118,17 +118,17 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
 
       <p className="text-[11px] text-muted-foreground bg-muted rounded-md p-2">
         {isFree
-          ? "Tiny Agents uses mock responses from our server. No API key needed."
-          : "Keys are stored in your browser only and sent directly to Groq. Never touches our servers."}
+          ? "模拟 LLM 不需要 API Key，适合先跑通课程。"
+          : "Key 只存放在你的浏览器本地，并直接发送给 Groq。"}
       </p>
 
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={revokeAll}>
-          Revoke all keys
+          移除全部 Key
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={save}>Save</Button>
+          <Button variant="outline" onClick={onClose}>取消</Button>
+          <Button onClick={save}>保存</Button>
         </div>
       </div>
     </div>
@@ -144,9 +144,9 @@ export function ApiKeyDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Set up your LLM provider</DialogTitle>
+          <DialogTitle>设置 LLM 提供方</DialogTitle>
           <DialogDescription>
-            Pick a provider. Tiny Agents works instantly — no key needed.
+            默认模拟模式可立即运行；需要真实模型回答时再填写 API Key。
           </DialogDescription>
         </DialogHeader>
         {open && <ApiKeyForm onClose={() => onOpenChange(false)} />}

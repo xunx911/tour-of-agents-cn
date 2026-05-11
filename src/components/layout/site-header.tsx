@@ -6,13 +6,12 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import { MoreVertical } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ApiKeyDialog } from "@/components/settings/api-key-dialog";
-import { trackGitHubClicked } from "@/lib/analytics/posthog";
 import { getProvider, PROVIDER_CONFIGS } from "@/lib/settings/api-keys";
 import { useLessonHeader } from "./lesson-header-context";
 
 function getProviderLabel() {
   const cfg = PROVIDER_CONFIGS[getProvider()];
-  return cfg.needsKey === false ? "⚡ Mock Mode" : `🔑 ${cfg.label}`;
+  return cfg.needsKey === false ? "⚡ 模拟模式" : `🔑 ${cfg.label}`;
 }
 
 let labelVersion = 0;
@@ -42,15 +41,11 @@ export function SiteHeader() {
               <span className="text-primary">A Tour of Agents</span>
             </Link>
             <nav className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
-              <Link href="/learn" className="px-2 py-1 rounded-md hover:bg-muted hover:text-foreground transition-colors">Learn</Link>
-              <Link href="/compare" className="px-2 py-1 rounded-md hover:bg-muted hover:text-foreground transition-colors">Compare</Link>
-              <Link href="/blog" className="px-2 py-1 rounded-md hover:bg-muted hover:text-foreground transition-colors">Blog</Link>
+              <Link href="/learn" className="px-2 py-1 rounded-md hover:bg-muted hover:text-foreground transition-colors">课程</Link>
             </nav>
           </div>
         )}
         <div className="ml-auto flex items-center gap-2">
-          {/* Desktop: all actions visible */}
-          <span className="hidden md:inline-flex"><GitHubLink /></span>
           <Button variant="outline" size="sm" className="hidden md:inline-flex" onClick={() => setShowSettings(true)}>
             {providerLabel}
           </Button>
@@ -65,25 +60,6 @@ export function SiteHeader() {
       </div>
       <ApiKeyDialog open={showSettings} onOpenChange={setShowSettings} />
     </header>
-  );
-}
-
-function GitHubLink() {
-  return (
-    <a href="https://github.com/ahumblenerd/tour-of-agents" target="_blank" rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted"
-      title="View source on GitHub" onClick={() => trackGitHubClicked()}>
-      <GitHubIcon />
-      <span className="hidden sm:inline">Source</span>
-    </a>
-  );
-}
-
-function GitHubIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/>
-    </svg>
   );
 }
 
@@ -104,7 +80,7 @@ function ThemeToggle() {
 
   return (
     <Button variant="ghost" size="sm" onClick={toggle}>
-      {dark ? "Light" : "Dark"}
+      {dark ? "浅色" : "深色"}
     </Button>
   );
 }
@@ -136,31 +112,16 @@ function MobileOverflow({ onOpenSettings }: { onOpenSettings: () => void }) {
         <Link href="/learn"
           className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors"
           onClick={() => setOpen(false)}>
-          Learn
-        </Link>
-        <Link href="/compare"
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors"
-          onClick={() => setOpen(false)}>
-          Compare
-        </Link>
-        <Link href="/blog"
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors"
-          onClick={() => setOpen(false)}>
-          Blog
+          课程
         </Link>
         <div className="h-px bg-border my-1" />
         <button onClick={() => { onOpenSettings(); setOpen(false); }}
           className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors">
-          LLM Settings
+          LLM 设置
         </button>
-        <a href="https://github.com/ahumblenerd/tour-of-agents" target="_blank" rel="noopener noreferrer"
-          onClick={() => { trackGitHubClicked(); setOpen(false); }}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors">
-          <GitHubIcon /> Source Code
-        </a>
         <button onClick={() => { toggleTheme(); setOpen(false); }}
           className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent transition-colors">
-          {dark ? "Light Mode" : "Dark Mode"}
+          {dark ? "浅色模式" : "深色模式"}
         </button>
       </PopoverContent>
     </Popover>
