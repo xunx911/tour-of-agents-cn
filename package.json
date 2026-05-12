@@ -6,9 +6,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ahumblenerd/tour-of-agents"
+    "url": "https://github.com/xunx911/tour-of-agents-cn"
   },
-  "homepage": "https://tinyagents.dev",
+  "homepage": "https://github.com/xunx911/tour-of-agents-cn",
   "scripts": {
     "dev": "next dev",
     "prebuild": "tsx scripts/build-llms.ts",
