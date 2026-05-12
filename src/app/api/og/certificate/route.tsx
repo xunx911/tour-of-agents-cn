@@ -6,7 +6,7 @@ export const runtime = "edge";
 const LESSONS = [
   "The Agent Function", "Tools = Dict", "The Agent Loop",
   "Conversation", "State = Dict", "Memory",
-  "Policy", "Self-Scheduling", "The Whole Thing",
+  "Policy", "Plan & Execute", "The Whole Thing",
 ];
 
 export async function GET(req: NextRequest) {
@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
             display: "flex",
           }}
         >
-          tinyagents.dev
+          A Tour of Agents 中文版
         </div>
       </div>
     ),

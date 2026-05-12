@@ -9,7 +9,7 @@ const SITE = "https://tinyagents.dev";
 export const metadata: Metadata = {
   title: "从零学习 AI Agent — A Tour of Agents",
   description:
-    "9 节交互课程，用 Python 从零理解 AI Agent：工具调用、Agent 循环、记忆、策略和自调度。",
+    "9 节交互课程，用 Python 从零理解 AI Agent：工具调用、Agent 循环、记忆、策略和计划执行。",
   keywords: [
     "学习 AI Agent", "AI Agent 教程", "Python AI Agent",
     "LLM 工具调用", "Agent 循环", "ReAct 模式",

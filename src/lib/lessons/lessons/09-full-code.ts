@@ -2,10 +2,18 @@ export const lesson09FullCode = `import json
 from pyodide.http import pyfetch
 def trace(t, l):
     print(f'__TRACE__:{json.dumps({"id": l[:8], "timestamp": 0, "type": t, "label": l})}')
-memory, task_queue, state = {}, [], {"tool_calls": [], "turns": 0}
+memory, state = {}, {"tool_calls": [], "turns": 0, "plan": [], "results": []}
+def make_plan(task):
+    return json.dumps([
+        f"明确目标：{task}",
+        "拆成 3 个可执行步骤",
+        "执行步骤并检查结果",
+    ], ensure_ascii=False)
+def execute_step(step):
+    return f"完成：{step}"
 tools = {"add": lambda a, b: a + b, "upper": lambda text: text.upper(),
     "remember": lambda key, value: memory.update({key: value}) or f"saved {key}={value}",
-    "schedule": lambda task: task_queue.append(task) or f"scheduled: {task}"}
+    "make_plan": make_plan, "execute_step": execute_step}
 TOOL_DEFS = [
     {"type": "function", "function": {"name": "add", "description": "Add two numbers",
         "parameters": {"type": "object", "properties": {"a": {"type": "number"}, "b": {"type": "number"}}}}},
@@ -13,8 +21,10 @@ TOOL_DEFS = [
         "parameters": {"type": "object", "properties": {"text": {"type": "string"}}}}},
     {"type": "function", "function": {"name": "remember", "description": "Save to memory",
         "parameters": {"type": "object", "properties": {"key": {"type": "string"}, "value": {"type": "string"}}}}},
-    {"type": "function", "function": {"name": "schedule", "description": "Schedule follow-up task",
+    {"type": "function", "function": {"name": "make_plan", "description": "Create a short execution plan",
         "parameters": {"type": "object", "properties": {"task": {"type": "string"}}}}},
+    {"type": "function", "function": {"name": "execute_step", "description": "Execute one planned step",
+        "parameters": {"type": "object", "properties": {"step": {"type": "string"}}}}},
 ]
 async def ask_llm(messages):
     resp = await pyfetch(f"{LLM_BASE_URL}/chat/completions",
@@ -22,14 +32,14 @@ async def ask_llm(messages):
         headers={"Authorization": f"Bearer {LLM_API_KEY}", "Content-Type": "application/json"},
         body=json.dumps({"model": LLM_MODEL, "messages": messages, "tools": TOOL_DEFS}))
     return json.loads(await resp.string())["choices"][0]["message"]
-INPUT_RULES = [lambda t: "delete" not in t.lower() or "blocked: no delete"]
+INPUT_RULES = [lambda t: "delete" not in t.lower() and "删除" not in t or "blocked: destructive request"]
 OUTPUT_RULES = [lambda t: "password" not in t.lower() or "redacted: password"]
 def check_gate(text, rules):
     for r in rules:
         result = r(text)
         if result is not True: return False, result
     return True, None
-async def agent(task, max_turns=5):
+async def agent(task, max_turns=8):
     ok, reason = check_gate(task, INPUT_RULES)
     if not ok: return f"BLOCKED: {reason}"
     mem_str = json.dumps(memory) if memory else "empty"
@@ -49,12 +59,13 @@ async def agent(task, max_turns=5):
             args = json.loads(tc["function"]["arguments"])
             result = tools[name](**args)
             state["tool_calls"].append({"tool": name, "args": args})
+            if name == "make_plan":
+                state["plan"] = json.loads(result)
+            if name == "execute_step":
+                state["results"].append(result)
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": str(result)})
     return "Max turns"
-task_queue.append("记住 name=Alice，然后计算 10 加 5")
-while task_queue:
-    task = task_queue.pop(0)
+for task in ["记住 name=Alice，然后计算 10 加 5", "我的名字是什么？", "为学习 Agent 制定计划"]:
     print(f">> {await agent(task)}")
-print(f">> {await agent('我的名字是什么？')}")
 print(f"Memory: {memory}")
 print(f"State: {state}")`;

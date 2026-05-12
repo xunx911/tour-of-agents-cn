@@ -48,6 +48,8 @@ function summarizeToolResult(result: string, messages: Message[]): MockResult {
   if (pendingTools > 0) {
     return matchToolCall(findLastUserMessage(messages) || "", []) ?? { type: "text", content: result };
   }
+  const nextPlanStep = matchNextPlanStep(messages);
+  if (nextPlanStep) return nextPlanStep;
   const nextTask = matchNextTask(messages);
   if (nextTask) return nextTask;
   if (/^\d+(\.\d+)?$/.test(result.trim())) {
@@ -76,6 +78,49 @@ function matchNextTask(messages: Message[]): MockResult | null {
   const candidate = matchToolCall(remainder, []);
   if (candidate && candidate.type === "tool_call" && !calledTools.has(candidate.name)) {
     return candidate;
+  }
+  return null;
+}
+
+function matchNextPlanStep(messages: Message[]): MockResult | null {
+  const plan = findLatestPlan(messages);
+  if (!plan) return null;
+
+  const executedSteps = new Set<string>();
+  for (const m of messages) {
+    if (m.role === "assistant" && m.tool_calls) {
+      for (const tc of m.tool_calls as Array<{ function?: { name?: string; arguments?: string } }>) {
+        if (tc.function?.name !== "execute_step" || !tc.function.arguments) continue;
+        try {
+          const args = JSON.parse(tc.function.arguments) as { step?: string };
+          if (args.step) executedSteps.add(args.step);
+        } catch {
+          // Ignore malformed mock arguments; the fallback text response will handle it.
+        }
+      }
+    }
+  }
+
+  const next = plan.find((step) => !executedSteps.has(step));
+  if (next) {
+    return { type: "tool_call", name: "execute_step", arguments: { step: next } };
+  }
+
+  return { type: "text", content: `计划已执行完成：${plan.length} 个步骤都已完成。` };
+}
+
+function findLatestPlan(messages: Message[]): string[] | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const content = messages[i].role === "tool" ? messages[i].content : undefined;
+    if (!content) continue;
+    try {
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.every((item) => typeof item === "string")) {
+        return parsed;
+      }
+    } catch {
+      // Not a JSON plan payload.
+    }
   }
   return null;
 }
@@ -139,7 +184,9 @@ function matchToolCall(text: string, toolNames: string[]): MockResult | null {
       { type: "tool_call", name: "remember", arguments: { key: "name", value: nameMatch[1] } } });
   }
 
-  const nameCnMatch = text.match(/我的名字是\s*([A-Za-z0-9_\u4e00-\u9fa5]+)/);
+  const nameCnMatch = isNameLookup(text)
+    ? null
+    : text.match(/我的名字是\s*([A-Za-z0-9_\u4e00-\u9fa5]+)/);
   if (nameCnMatch && ok("remember")) {
     candidates.push({ index: nameCnMatch.index!, result:
       { type: "tool_call", name: "remember", arguments: { key: "name", value: nameCnMatch[1] } } });
@@ -157,10 +204,12 @@ function matchToolCall(text: string, toolNames: string[]): MockResult | null {
       { type: "tool_call", name: "remember", arguments: { key: "preference", value: rememberCnLike[1] } } });
   }
 
-  if (toolNames.includes("schedule_followup") && !lower.includes("add") && !lower.includes("upper")) {
-    const taskText = text.trim().replace(/^(Research:\s*)+/i, "").trim() || text.trim();
+  const onlyPlanningTools = toolNames.length > 0
+    && toolNames.every((name) => name === "make_plan" || name === "execute_step");
+  const asksForPlan = /规划|计划|准备|拆解|plan/i.test(text);
+  if (ok("make_plan") && (onlyPlanningTools || asksForPlan)) {
     candidates.push({ index: 0, result:
-      { type: "tool_call", name: "schedule_followup", arguments: { task: `研究：${taskText}` } } });
+      { type: "tool_call", name: "make_plan", arguments: { task: text.trim() } } });
   }
 
   if (candidates.length === 0) return null;
@@ -177,7 +226,7 @@ function matchTextResponse(text: string, messages: Message[] = []): MockResult {
     return { type: "text", content: "Python 是一种高级解释型编程语言，语法清晰，生态丰富，常用于 Web、数据分析、自动化和 AI。" };
   if (lower.includes("joke") || text.includes("笑话"))
     return { type: "text", content: "一个简短笑话：程序员为什么喜欢深色模式？因为亮光会把 bug 招出来。" };
-  if (lower.includes("what is my name") || text.includes("我的名字是什么")) {
+  if (lower.includes("what is my name") || isNameLookup(text)) {
     const name = extractMemoryValue("name", messages);
     if (name) return { type: "text", content: `你的名字是 ${name}。` };
     return { type: "text", content: "我还没有在记忆里找到你的名字。可以先让我记住它。" };
@@ -190,6 +239,10 @@ function matchTextResponse(text: string, messages: Message[] = []): MockResult {
     return { type: "text", content: "我不能帮助执行破坏性操作。可以改问我计算数字或把文本转成大写。" };
 
   return { type: "text", content: `这是一个关于“${text.slice(0, 40)}”的好问题。简短说，Agent 就是在循环中调用 LLM、工具和状态的函数。` };
+}
+
+function isNameLookup(text: string): boolean {
+  return /(?:我的名字是什么|我叫什么名字)/.test(text);
 }
 
 function extractMemoryValue(key: string, messages: Message[]): string | null {

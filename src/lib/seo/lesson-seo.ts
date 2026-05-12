@@ -26,9 +26,9 @@ function generateDescription(lesson: LessonDefinition): string {
     policy:
       "ChatGPT 会拒绝危险请求，靠的是输入和输出两道关卡。用几行 Python 写出护栏原型，看懂 Guardrails AI 和 NeMo Guardrails 的基础思路。",
     "self-scheduling":
-      "ChatGPT 深度研究会自己拆子任务。用任务队列和预算写一个自调度 Agent，看懂 CrewAI 任务委派背后的模式。",
+      "复杂 Agent 常先生成计划，再逐步执行。用 make_plan 和 execute_step 写出可检查的计划-执行循环。",
     "the-whole-thing":
-      "用约 60 行 Python 组合出完整 AI Agent：工具、记忆、护栏、自调度。先看懂底层，再决定是否需要框架。",
+      "用约 60 行 Python 组合出完整 AI Agent：工具、记忆、护栏、计划与执行。先看懂底层，再决定是否需要框架。",
   };
   return descriptions[lesson.slug] ?? lesson.subtitle;
 }
@@ -76,9 +76,9 @@ function generateKeywords(lesson: LessonDefinition): string[] {
       "LLM 内容过滤", "AI 策略 Python",
     ],
     "self-scheduling": [
-      "自调度 Agent", "AI 任务队列",
-      "BFS agent", "CrewAI task delegation",
-      "自主 Agent", "deep research agent", "Agent 子任务",
+      "计划执行 Agent", "plan and execute",
+      "AI 任务拆解", "CrewAI task",
+      "LangGraph workflow", "Agent 计划", "execute step",
     ],
     "the-whole-thing": [
       "完整 AI Agent", "从零构建 Agent",

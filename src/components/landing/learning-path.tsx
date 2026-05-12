@@ -23,7 +23,7 @@ export function LearningPath({ progress }: LearningPathProps) {
         可以从任意一课开始。每节课都能在浏览器里直接运行。
       </p>
       <p className="text-xs text-muted-foreground/70 text-center mb-6 max-w-md mx-auto">
-        从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和自调度。
+        从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和计划执行。
       </p>
 
       {completedCount > 0 && (

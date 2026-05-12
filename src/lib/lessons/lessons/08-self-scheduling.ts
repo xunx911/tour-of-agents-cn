@@ -4,73 +4,88 @@ import { lesson08FullCode } from "./08-full-code";
 export const lesson08: LessonDefinition = {
   slug: "self-scheduling",
   number: 8,
-  title: "自调度",
-  subtitle: "ChatGPT 深度研究会自己拆子任务。核心是一个队列加预算。",
+  title: "计划与执行",
+  subtitle: "复杂任务先拆成计划，再逐步执行。很多 Agent 产品靠的就是这个循环。",
   difficulty: "advanced",
-  concepts: ["自调度", "任务队列", "BFS", "收敛", "预算"],
+  concepts: ["计划", "执行", "步骤列表", "任务拆解", "收敛"],
   graph: {
     direction: "TB",
     nodes: [
-      { id: "queue", label: "任务队列", icon: "⟩", phase: "input" },
-      { id: "pop", label: "取出任务", phase: "input" },
-      { id: "agent", label: "Agent 循环", icon: "⟡", phase: "llm" },
-      { id: "check", label: "队列为空？", shape: "diamond", phase: "decide" },
-      { id: "done", label: "全部完成", icon: "◆", phase: "output" },
-      { id: "enqueue", label: "加入后续任务", icon: "⚙", phase: "tool" },
+      { id: "input", label: "任务输入", icon: "⟩", phase: "input" },
+      { id: "planner", label: "生成计划", icon: "⟡", phase: "llm" },
+      { id: "check", label: "还有步骤？", shape: "diamond", phase: "decide" },
+      { id: "execute", label: "执行步骤", icon: "⚙", phase: "tool" },
+      { id: "record", label: "记录结果", phase: "tool" },
+      { id: "done", label: "汇总完成", icon: "◆", phase: "output" },
     ],
     edges: [
-      { id: "queue-pop", source: "queue", target: "pop" },
-      { id: "pop-agent", source: "pop", target: "agent" },
-      { id: "agent-check", source: "agent", target: "check", label: "完成" },
-      { id: "check-done", source: "check", target: "done", label: "是" },
-      { id: "check-pop", source: "check", target: "pop", label: "否" },
-      { id: "agent-enqueue", source: "agent", target: "enqueue", label: "调度" },
-      { id: "enqueue-queue", source: "enqueue", target: "queue" },
+      { id: "input-planner", source: "input", target: "planner" },
+      { id: "planner-check", source: "planner", target: "check" },
+      { id: "check-execute", source: "check", target: "execute", label: "是" },
+      { id: "execute-record", source: "execute", target: "record" },
+      { id: "record-check", source: "record", target: "check" },
+      { id: "check-done", source: "check", target: "done", label: "否" },
     ],
   },
   frameworkName:
-    "CrewAI 的任务委派、AutoGen 的 nested chats，本质上都是动态工作队列上的 BFS。",
+    "Plan-and-execute Agent、LangGraph 工作流、CrewAI 顺序任务，本质上都是先拆步骤，再逐步执行和汇总。",
   llmConfig: {
-    systemPrompt: "你可以使用工具。遇到研究任务时，用 schedule_followup 安排后续步骤。",
+    systemPrompt: "你可以使用工具。复杂任务先调用 make_plan，再逐步调用 execute_step。",
     tools: [
-      { name: "add", description: "Add two numbers",
-        parameters: { a: { type: "number" }, b: { type: "number" } } },
-      { name: "schedule_followup", description: "Add a follow-up task to the queue",
+      { name: "make_plan", description: "Create a short execution plan",
         parameters: { task: { type: "string" } } },
+      { name: "execute_step", description: "Execute one planned step",
+        parameters: { step: { type: "string" } } },
     ],
     mockResponses: [],
   },
   steps: [
     {
       id: "intro",
-      prose: `# 自调度：Agent 决定下一步做什么
+      prose: `# 计划与执行：先想清楚，再一步步做
 
-你在 Claude 里可能见过：让它“重构这个模块”，它会自己决定读取相关文件、检查测试、更新 import。你并没有逐条要求这些子任务。ChatGPT 的深度研究也类似：你问一个问题，它会派生多个研究线程。
+复杂 Agent 不应该一边跑一边随便追加任务。更清楚的结构是：**先生成计划，再按计划执行**。
 
-到目前为止，都是**你**决定 Agent 做什么。更像 Agent 的系统会自己决定下一步。技巧是：\`schedule_followup\` 只是一个工具。LLM 像调用 \`add\` 一样调用它，副作用是：一个新任务进入队列。外层循环不断处理任务，直到队列清空或预算用完。
+你在很多产品里都见过这个模式：让 AI 做代码审查，它会先列出检查项；让它写研究报告，它会先给提纲；让它处理发布准备，它会先列 checklist。这里的关键不是“自治”，而是一个可检查的执行流程：
 
-> **对应框架：** CrewAI 把它叫 delegation，AutoGen 把它叫 nested chats。预算上限（\`max_tasks\`）决定了这是有用 Agent，还是账单事故。`,
+1. 用户给出目标。
+2. Planner 把目标拆成几个步骤。
+3. Executor 逐步执行。
+4. 每一步结果都进入状态，最后汇总。
+
+> **对应框架：** LangGraph 常把这做成 planner 节点 + executor 节点；CrewAI 常把它表现为顺序 Task；很多 “deep research” 产品也会先生成研究计划。`,
     },
     {
       id: "setup",
-      highlightNodes: ["queue", "enqueue"],
-      prose: `## 第 1 步：工具 + 队列
+      highlightNodes: ["planner", "execute"],
+      prose: `## 第 1 步：两个工具
 
-\`schedule_followup\` 会向 \`task_queue\` 追加任务。这个队列既在 Agent 外面，也在调度器外面。LLM 不知道它很特殊，只看到一个返回 "scheduled: ..." 的工具。`,
-      code: `task_queue = []
+这次不再用会无限追加任务的队列，而是两个边界清楚的工具：
 
-tools = {
-    "add": lambda a, b: a + b,
-    "schedule_followup": lambda task: task_queue.append(task) or f"scheduled: {task}",
-}
+- \`make_plan(task)\`：把目标拆成步骤列表。
+- \`execute_step(step)\`：执行其中一步，并返回结果。
+
+这里的工具实现仍然是模拟的。接口先固定住，后面可以替换成真实检索、代码运行、文件编辑或 API 调用。`,
+      code: `def make_plan(task):
+    return json.dumps([
+        f"明确目标：{task}",
+        "拆成 3 个可执行步骤",
+        "执行步骤并检查结果",
+    ], ensure_ascii=False)
+
+def execute_step(step):
+    return f"完成：{step}"
+
+tools = {"make_plan": make_plan, "execute_step": execute_step}
 TOOL_DEFS = [
-    {"type": "function", "function": {"name": "add", "description": "Add two numbers",
-        "parameters": {"type": "object",
-            "properties": {"a": {"type": "number"}, "b": {"type": "number"}}}}},
-    {"type": "function", "function": {"name": "schedule_followup",
-        "description": "Schedule a follow-up task for the agent to process next",
+    {"type": "function", "function": {"name": "make_plan",
+        "description": "Create a short execution plan",
         "parameters": {"type": "object",
             "properties": {"task": {"type": "string"}}}}},
+    {"type": "function", "function": {"name": "execute_step",
+        "description": "Execute one planned step",
+        "parameters": {"type": "object",
+            "properties": {"step": {"type": "string"}}}}},
 ]
 async def ask_llm(messages):
     resp = await pyfetch(f"{LLM_BASE_URL}/chat/completions",
@@ -82,66 +97,67 @@ async def ask_llm(messages):
     },
     {
       id: "agent",
-      highlightNodes: ["agent"],
-      prose: `## 第 2 步：第 3 课循环不变
+      highlightNodes: ["planner", "check", "execute", "record"],
+      prose: `## 第 2 步：计划-执行循环
 
-Agent 自己并不知道队列存在。它只是在执行工具。当 LLM 调用 \`schedule_followup\` 时，工具函数通过副作用把任务追加到队列里。循环把它当作普通工具结果处理。`,
-      code: `async def agent(task, max_turns=5):
+Agent 主体还是第 3 课的循环，但任务结构更清楚：
+
+1. 第一次调用 LLM，LLM 会请求 \`make_plan\`。
+2. 计划返回后，LLM 按顺序请求 \`execute_step\`。
+3. 每个步骤结果都记录到 \`results\`。
+4. 所有步骤完成后，LLM 返回汇总。
+
+这样右侧 Trace 会更好读：你能清楚看到先计划，再执行第 1、2、3 步。`,
+      code: `async def agent(task, max_turns=8):
     messages = [
-        {"role": "system", "content": "You have tools. Use schedule_followup to add next steps. Be concise."},
+        {"role": "system", "content": "First make a plan, then execute each step. Be concise."},
         {"role": "user", "content": task},
     ]
+    plan, results = [], []
     for turn in range(max_turns):
         trace("llm_call", f"Turn {turn + 1}")
         msg = await ask_llm(messages)
         if not msg.get("tool_calls"):
             trace("agent_end", msg.get("content", ""))
-            return msg.get("content", "")
+            return {"plan": plan, "results": results, "summary": msg.get("content", "")}
+
         messages.append(msg)
         for tc in msg["tool_calls"]:
             name = tc["function"]["name"]
             args = json.loads(tc["function"]["arguments"])
             result = tools[name](**args)
+            if name == "make_plan":
+                plan = json.loads(result)
+            if name == "execute_step":
+                results.append(result)
             trace("tool_result", f"{name}({args}) → {result}")
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": str(result)})
-    return "Max turns reached"`,
-    },
-    {
-      id: "scheduler",
-      highlightNodes: ["pop", "check", "done"],
-      prose: `## 第 3 步：调度器，也就是 BFS
-
-取出队首任务，运行 \`agent()\`，检查有没有新任务被加入。重复这个过程，直到队列为空或预算耗尽。
-
-这是**外层循环**。Agent 内部还有自己的**内层循环**（第 3 课）。两层迭代：调度器决定做什么，Agent 决定怎么做。`,
-      code: `async def run_queue(initial_tasks, max_tasks=5):
-    task_queue.clear()
-    task_queue.extend(initial_tasks)
-    results = []
-    processed = 0
-    while task_queue and processed < max_tasks:
-        task = task_queue.pop(0)
-        processed += 1
-        trace("agent_start", f"[{processed}/{max_tasks}] {task}")
-        result = await agent(task)
-        results.append({"task": task, "result": result})
-    if task_queue:
-        trace("policy_block", f"BUDGET: {len(task_queue)} tasks remaining")
-    return results`,
+    return {"plan": plan, "results": results, "summary": "Max turns reached"}`,
     },
     {
       id: "run",
-      highlightNodes: ["queue", "agent", "done"],
+      highlightNodes: ["input", "planner", "execute", "done"],
       prose: `## 试一下
 
-输入一个主题。LLM 会处理它，并可能安排后续任务。观察监视器里队列如何增长和清空。如果 LLM 过于积极，就会撞到预算上限。`,
-      code: `results = await run_queue([f"研究 {USER_INPUT}，并安排后续总结"])
-for r in results:
-    print(f">> [{r['task']}] {r['result']}")`,
+输入一个目标，看它先形成计划，再逐步执行。注意观察 Trace：
+
+- 第一次工具调用是 \`make_plan\`。
+- 后面每一步都是 \`execute_step\`。
+- 最后返回“计划已执行完成”。
+
+这就是更适合教学和生产排查的 Agent 结构：每一步都能解释，每一步都能替换。`,
+      code: `result = await agent(USER_INPUT)
+print("Plan:")
+for i, step in enumerate(result["plan"], 1):
+    print(f"{i}. {step}")
+print("Results:")
+for item in result["results"]:
+    print(f"- {item}")
+print(f">> {result['summary']}")`,
       inputConfig: {
-        placeholder: "输入一个主题，例如 AI 安全",
+        placeholder: "试试“帮我规划学习 Agent”",
         variable: "USER_INPUT",
-        samples: ["AI 安全", "量子计算", "气候变化"],
+        samples: ["帮我规划学习 Agent", "做一个代码审查计划", "准备一次产品发布"],
       },
     },
   ],

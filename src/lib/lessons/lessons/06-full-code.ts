@@ -31,6 +31,6 @@ async def agent(task, max_turns=5):
             result = tools[name](**args)
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": str(result)})
     return "Max turns"
-print(f">> {await agent('my name is Alice and I like Python')}")
-print(f">> {await agent('what is my name and what do I like?')}")
+print(f">> {await agent('我的名字是 Alice')}")
+print(f">> {await agent('我的名字是什么？')}")
 print(f"Memory: {memory}")`;
