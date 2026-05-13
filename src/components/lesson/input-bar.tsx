@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useSyncExternalStore } from "react";
 import { InputConfig } from "@/lib/lessons/types";
-import { getProvider } from "@/lib/settings/api-keys";
+import { getProvider, subscribeLlmSettingsChange } from "@/lib/settings/api-keys";
 import { ApiKeyDialog } from "@/components/settings/api-key-dialog";
 import { Key } from "lucide-react";
 
@@ -22,7 +22,12 @@ export function InputBar({
   const [input, setInput] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const isMock = getProvider() === "tinyagents";
+  const provider = useSyncExternalStore(
+    subscribeLlmSettingsChange,
+    getProvider,
+    () => "tinyagents",
+  );
+  const isMock = provider === "tinyagents";
 
   const handleSend = useCallback((text?: string, el?: HTMLElement) => {
     const value = text || input.trim();

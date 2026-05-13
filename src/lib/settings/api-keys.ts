@@ -2,6 +2,7 @@ const STORAGE_KEY = "tour-of-agents-api-keys";
 const PROVIDER_KEY = "tour-of-agents-provider";
 const MODEL_KEY = "tour-of-agents-model";
 const COMPATIBLE_BASE_URL_KEY = "tour-of-agents-compatible-base-url";
+const LLM_SETTINGS_CHANGE_EVENT = "tour-of-agents-llm-settings-change";
 
 export type LlmProvider = "tinyagents" | "openai-compatible";
 
@@ -54,6 +55,7 @@ export function getApiKeys(): ApiKeys {
 
 export function setApiKeys(keys: ApiKeys): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+  emitLlmSettingsChange();
 }
 
 export function hasAnyKey(): boolean {
@@ -73,6 +75,7 @@ export function getProvider(): LlmProvider {
 
 export function setProvider(provider: LlmProvider): void {
   localStorage.setItem(PROVIDER_KEY, provider);
+  emitLlmSettingsChange();
 }
 
 export function getModel(): string {
@@ -85,6 +88,7 @@ export function getModel(): string {
 
 export function setModel(model: string): void {
   localStorage.setItem(MODEL_KEY, model);
+  emitLlmSettingsChange();
 }
 
 export function getActiveKey(): string | undefined {
@@ -100,6 +104,17 @@ export function getCompatibleBaseUrl(): string {
 
 export function setCompatibleBaseUrl(baseUrl: string): void {
   localStorage.setItem(COMPATIBLE_BASE_URL_KEY, normalizeBaseUrl(baseUrl));
+  emitLlmSettingsChange();
+}
+
+export function subscribeLlmSettingsChange(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  window.addEventListener(LLM_SETTINGS_CHANGE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(LLM_SETTINGS_CHANGE_EVENT, callback);
+  };
 }
 
 export function getLlmConfig() {
@@ -151,4 +166,9 @@ function tryParseError(body: string): string | null {
 
 function normalizeBaseUrl(baseUrl: string): string {
   return (baseUrl.trim() || DEFAULT_COMPATIBLE_BASE_URL).replace(/\/+$/, "");
+}
+
+function emitLlmSettingsChange(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(LLM_SETTINGS_CHANGE_EVENT));
 }

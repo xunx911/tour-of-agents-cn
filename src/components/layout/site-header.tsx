@@ -6,7 +6,7 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import { MoreVertical } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ApiKeyDialog } from "@/components/settings/api-key-dialog";
-import { getProvider, PROVIDER_CONFIGS } from "@/lib/settings/api-keys";
+import { getProvider, PROVIDER_CONFIGS, subscribeLlmSettingsChange } from "@/lib/settings/api-keys";
 import { useLessonHeader } from "./lesson-header-context";
 
 function getProviderLabel() {
@@ -14,23 +14,14 @@ function getProviderLabel() {
   return cfg.needsKey === false ? "⚡ 模拟模式" : `🔑 ${cfg.label}`;
 }
 
-let labelVersion = 0;
-function subscribeLabelChange(cb: () => void) {
-  const orig = labelVersion;
-  const id = setInterval(() => { if (labelVersion !== orig) cb(); }, 100);
-  return () => clearInterval(id);
-}
-
 export function SiteHeader() {
   const [showSettings, setShowSettings] = useState(false);
   const { content } = useLessonHeader();
   const providerLabel = useSyncExternalStore(
-    subscribeLabelChange,
+    subscribeLlmSettingsChange,
     getProviderLabel,
     () => "...",
   );
-
-  useEffect(() => { if (!showSettings) labelVersion++; }, [showSettings]);
 
   return (
     <header className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -1,25 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { getProvider, PROVIDER_CONFIGS } from "@/lib/settings/api-keys";
+import { useSyncExternalStore } from "react";
+import { getProvider, PROVIDER_CONFIGS, subscribeLlmSettingsChange } from "@/lib/settings/api-keys";
 
 function checkMock() {
   return PROVIDER_CONFIGS[getProvider()].needsKey === false;
 }
 
 export function MockModeBanner() {
-  // Start with true to match server (getProvider returns tinyagents on server)
-  const [isMock, setIsMock] = useState(true);
-
-  const refresh = useCallback(() => setIsMock(checkMock()), []);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    refresh(); // sync on mount — server defaults to true, client corrects immediately
-    window.addEventListener("storage", refresh);
-    const id = setInterval(refresh, 2000);
-    return () => { window.removeEventListener("storage", refresh); clearInterval(id); };
-  }, [refresh]);
+  const isMock = useSyncExternalStore(
+    subscribeLlmSettingsChange,
+    checkMock,
+    () => true,
+  );
 
   if (!isMock) return null;
 
