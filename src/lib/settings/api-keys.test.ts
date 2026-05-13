@@ -1,5 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { getApiKeys, setApiKeys, hasAnyKey, setProvider, getProvider } from "./api-keys";
+import {
+  DEFAULT_COMPATIBLE_BASE_URL,
+  getApiKeys,
+  setApiKeys,
+  hasAnyKey,
+  setProvider,
+  getProvider,
+  getCompatibleBaseUrl,
+  setCompatibleBaseUrl,
+} from "./api-keys";
 
 describe("api-keys", () => {
   const store: Record<string, string> = {};
@@ -23,9 +32,9 @@ describe("api-keys", () => {
   });
 
   it("stores and retrieves keys", () => {
-    setApiKeys({ groq: "gsk-test-123" });
+    setApiKeys({ "openai-compatible": "sk-test-123" });
     const keys = getApiKeys();
-    expect(keys.groq).toBe("gsk-test-123");
+    expect(keys["openai-compatible"]).toBe("sk-test-123");
   });
 
   it("hasAnyKey returns true when tinyagents (default)", () => {
@@ -33,28 +42,40 @@ describe("api-keys", () => {
   });
 
   it("hasAnyKey returns false when non-free provider with no key", () => {
-    setProvider("groq");
+    setProvider("openai-compatible");
     expect(hasAnyKey()).toBe(false);
   });
 
-  it("hasAnyKey returns true with groq key", () => {
-    setApiKeys({ groq: "gsk-test" });
+  it("hasAnyKey returns true with OpenAI-compatible key", () => {
+    setApiKeys({ "openai-compatible": "sk-test" });
+    setProvider("openai-compatible");
     expect(hasAnyKey()).toBe(true);
   });
 
   it("overwrites previous keys", () => {
-    setApiKeys({ groq: "old" });
-    setApiKeys({ groq: "new" });
-    expect(getApiKeys().groq).toBe("new");
+    setApiKeys({ "openai-compatible": "old" });
+    setApiKeys({ "openai-compatible": "new" });
+    expect(getApiKeys()["openai-compatible"]).toBe("new");
   });
 
-  it("migrates old openai provider to tinyagents", () => {
+  it("migrates old openai provider to OpenAI-compatible", () => {
     store["tour-of-agents-provider"] = "openai";
-    expect(getProvider()).toBe("tinyagents");
+    expect(getProvider()).toBe("openai-compatible");
   });
 
   it("migrates anthropic provider to tinyagents", () => {
     store["tour-of-agents-provider"] = "anthropic";
     expect(getProvider()).toBe("tinyagents");
+  });
+
+  it("migrates legacy provider key to OpenAI-compatible key", () => {
+    store["tour-of-agents-api-keys"] = JSON.stringify({ groq: "legacy-key" });
+    expect(getApiKeys()["openai-compatible"]).toBe("legacy-key");
+  });
+
+  it("stores and normalizes OpenAI-compatible base URL", () => {
+    expect(getCompatibleBaseUrl()).toBe(DEFAULT_COMPATIBLE_BASE_URL);
+    setCompatibleBaseUrl("https://example.com/v1///");
+    expect(getCompatibleBaseUrl()).toBe("https://example.com/v1");
   });
 });

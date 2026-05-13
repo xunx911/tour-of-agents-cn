@@ -1,23 +1,19 @@
 const STORAGE_KEY = "tour-of-agents-api-keys";
 const PROVIDER_KEY = "tour-of-agents-provider";
 const MODEL_KEY = "tour-of-agents-model";
+const COMPATIBLE_BASE_URL_KEY = "tour-of-agents-compatible-base-url";
 
-export type LlmProvider = "tinyagents" | "groq";
+export type LlmProvider = "tinyagents" | "openai-compatible";
 
 export interface ProviderConfig {
   label: string;
   hint: string;
   baseUrl: string;
   defaultModel: string;
-  models?: string[];
   needsKey?: boolean;
 }
 
-export const GROQ_MODELS = [
-  "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b",
-  "qwen/qwen3-32b",
-] as const;
+export const DEFAULT_COMPATIBLE_BASE_URL = "https://api.openai.com/v1";
 
 export const PROVIDER_CONFIGS: Record<LlmProvider, ProviderConfig> = {
   tinyagents: {
@@ -27,17 +23,18 @@ export const PROVIDER_CONFIGS: Record<LlmProvider, ProviderConfig> = {
     defaultModel: "tiny-mock-v1",
     needsKey: false,
   },
-  groq: {
-    label: "Groq",
-    hint: "可选真实模型。使用 Groq 的开放模型接口，需要你自己的 API Key。",
-    baseUrl: "https://api.groq.com/openai/v1",
-    defaultModel: "openai/gpt-oss-120b",
-    models: [...GROQ_MODELS],
+  "openai-compatible": {
+    label: "OpenAI 兼容接口",
+    hint: "可选真实模型。填写任意 OpenAI-compatible Base URL、API Key 和模型名。",
+    baseUrl: DEFAULT_COMPATIBLE_BASE_URL,
+    defaultModel: "gpt-4o-mini",
   },
 };
 
 export interface ApiKeys {
   tinyagents?: string;
+  "openai-compatible"?: string;
+  /** Legacy key kept only for localStorage migration. */
   groq?: string;
 }
 
@@ -45,7 +42,11 @@ export function getApiKeys(): ApiKeys {
   if (typeof window === "undefined") return {};
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
+    const parsed = raw ? JSON.parse(raw) as ApiKeys : {};
+    if (parsed.groq && !parsed["openai-compatible"]) {
+      return { ...parsed, "openai-compatible": parsed.groq };
+    }
+    return parsed;
   } catch {
     return {};
   }
@@ -58,15 +59,15 @@ export function setApiKeys(keys: ApiKeys): void {
 export function hasAnyKey(): boolean {
   if (getProvider() === "tinyagents") return true;
   const keys = getApiKeys();
-  return !!keys.groq;
+  return !!keys["openai-compatible"];
 }
 
 export function getProvider(): LlmProvider {
   if (typeof window === "undefined") return "tinyagents";
   const stored = localStorage.getItem(PROVIDER_KEY);
-  // Migrate old providers to tinyagents
-  if (stored === "openai" || stored === "anthropic") return "tinyagents";
-  if (stored === "tinyagents" || stored === "groq") return stored;
+  if (stored === "openai" || stored === "groq") return "openai-compatible";
+  if (stored === "anthropic") return "tinyagents";
+  if (stored === "tinyagents" || stored === "openai-compatible") return stored;
   return "tinyagents";
 }
 
@@ -89,7 +90,16 @@ export function setModel(model: string): void {
 export function getActiveKey(): string | undefined {
   const provider = getProvider();
   if (provider === "tinyagents") return "tiny-free";
-  return getApiKeys().groq;
+  return getApiKeys()["openai-compatible"];
+}
+
+export function getCompatibleBaseUrl(): string {
+  if (typeof window === "undefined") return DEFAULT_COMPATIBLE_BASE_URL;
+  return localStorage.getItem(COMPATIBLE_BASE_URL_KEY) || DEFAULT_COMPATIBLE_BASE_URL;
+}
+
+export function setCompatibleBaseUrl(baseUrl: string): void {
+  localStorage.setItem(COMPATIBLE_BASE_URL_KEY, normalizeBaseUrl(baseUrl));
 }
 
 export function getLlmConfig() {
@@ -97,7 +107,7 @@ export function getLlmConfig() {
   const config = PROVIDER_CONFIGS[provider];
   return {
     apiKey: getActiveKey() || "",
-    baseUrl: config.baseUrl,
+    baseUrl: provider === "openai-compatible" ? getCompatibleBaseUrl() : config.baseUrl,
     model: getModel(),
   };
 }
@@ -107,7 +117,7 @@ export async function testConnection(
   baseUrl: string, apiKey: string, model: string,
 ): Promise<{ ok: boolean; message: string }> {
   try {
-    const res = await fetch(`${baseUrl}/chat/completions`, {
+    const res = await fetch(`${normalizeBaseUrl(baseUrl)}/chat/completions`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
@@ -137,4 +147,8 @@ function tryParseError(body: string): string | null {
     const j = JSON.parse(body);
     return j.error?.message || j.error?.code || null;
   } catch { return null; }
+}
+
+function normalizeBaseUrl(baseUrl: string): string {
+  return (baseUrl.trim() || DEFAULT_COMPATIBLE_BASE_URL).replace(/\/+$/, "");
 }

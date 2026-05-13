@@ -26,7 +26,7 @@ export function MockModeBanner() {
   return (
     <span className="text-[10px] text-amber-400/80 bg-amber-400/10 border border-amber-400/20 rounded px-1.5 py-0.5">
       模拟模式：回答来自预设脚本。{" "}
-      <span className="text-amber-400/60">切换提供方可使用真实 LLM。</span>
+      <span className="text-amber-400/60">切换到 OpenAI 兼容接口可使用真实 LLM。</span>
     </span>
   );
 }

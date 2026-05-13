@@ -57,7 +57,7 @@ export function InputBar({
           <button type="button" onClick={() => setShowSettings(true)}
             className="hidden md:flex items-center gap-2 w-full px-3 py-2 text-sm rounded-md border border-dashed border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
             <Key className="h-3.5 w-3.5" />
-            添加 Groq API Key 后可自由提问
+            配置 OpenAI 兼容接口后可自由提问
           </button>
           <ApiKeyDialog open={showSettings} onOpenChange={setShowSettings} />
         </>

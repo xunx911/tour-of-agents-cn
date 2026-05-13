@@ -36,7 +36,7 @@ npm run dev
 默认使用模拟响应，不需要 API Key。要接入真实模型：
 
 1. 点击页头的 **API Keys**。
-2. 选择 provider，填入 key，然后点击 **Test**。
+2. 选择 **OpenAI 兼容接口**，填入 Base URL、Key 和模型名，然后点击 **Test**。
 3. Key 只保存在浏览器 `localStorage`，不会发送到本站服务器。
 
 ## 技术栈

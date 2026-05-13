@@ -10,23 +10,29 @@ import {
   setProvider,
   getModel,
   setModel,
+  getCompatibleBaseUrl,
+  setCompatibleBaseUrl,
   PROVIDER_CONFIGS,
-  GROQ_MODELS,
   type LlmProvider,
   type ApiKeys,
+  testConnection,
 } from "@/lib/settings/api-keys";
 import { trackProviderSelected } from "@/lib/analytics/posthog";
 
-const PROVIDERS: LlmProvider[] = ["tinyagents", "groq"];
+const PROVIDERS: LlmProvider[] = ["tinyagents", "openai-compatible"];
 
 function ApiKeyForm({ onClose }: { onClose: () => void }) {
   const [provider, setLocal] = useState<LlmProvider>(() => getProvider());
   const [keys, setKeys] = useState<ApiKeys>(() => getApiKeys());
   const [model, setLocalModel] = useState(() => getModel());
+  const [baseUrl, setBaseUrl] = useState(() => getCompatibleBaseUrl());
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [testing, setTesting] = useState(false);
 
   const handleProviderSwitch = (p: LlmProvider) => {
     setLocal(p);
     setLocalModel(PROVIDER_CONFIGS[p].defaultModel);
+    setTestResult(null);
   };
 
   const config = PROVIDER_CONFIGS[provider];
@@ -37,6 +43,7 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
     setProvider(provider);
     setApiKeys(keys);
     setModel(model || config.defaultModel);
+    setCompatibleBaseUrl(baseUrl);
     trackProviderSelected(provider);
     onClose();
   };
@@ -46,7 +53,16 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
   };
 
   const revokeAll = () => {
-    setKeys({ tinyagents: "", groq: "" });
+    setKeys({ tinyagents: "", "openai-compatible": "" });
+  };
+
+  const handleTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    const activeModel = model || config.defaultModel;
+    const result = await testConnection(baseUrl, currentKey, activeModel);
+    setTesting(false);
+    setTestResult(result);
   };
 
   return (
@@ -70,32 +86,23 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
         <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 p-3">
           <p className="text-xs text-emerald-400">
             无需任何配置。所有课程都可以用模拟回答立即运行。
-            想看真实模型回答时，可以切换到 Groq。
+            想看真实模型回答时，可以切换到 OpenAI 兼容接口。
           </p>
-        </div>
-      )}
-
-      {provider === "groq" && !currentKey && (
-        <div className="rounded-md bg-blue-500/10 border border-blue-500/20 p-3 space-y-2">
-          <p className="text-xs font-medium text-blue-400">Groq 提供免费额度，通常无需信用卡</p>
-          <p className="text-[11px] text-muted-foreground">
-            如需真实 LLM 回答，可以注册 Groq 并粘贴你的 API Key：
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            1. 打开{" "}
-            <a href="https://console.groq.com" target="_blank" rel="noopener noreferrer"
-              className="text-blue-400 underline">console.groq.com</a>{" "}并注册
-          </p>
-          <p className="text-[11px] text-muted-foreground">2. 创建 API Key，然后粘贴到下方</p>
         </div>
       )}
 
       {!isFree && (
         <>
           <div>
-            <label className="text-sm font-medium mb-1 block">{config.label} API Key</label>
+            <label className="text-sm font-medium mb-1 block">Base URL</label>
+            <input type="url" placeholder="https://api.openai.com/v1"
+              value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)}
+              className="w-full text-sm p-2 rounded-md border bg-background font-mono" />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">API Key</label>
             <div className="flex gap-2">
-              <input type="password" placeholder={`粘贴你的 ${config.label} Key`}
+              <input type="password" placeholder="粘贴你的 API Key"
                 value={currentKey} onChange={(e) => setKeys({ ...keys, [provider]: e.target.value })}
                 className="flex-1 text-sm p-2 rounded-md border bg-background font-mono" />
               {currentKey && (
@@ -106,12 +113,9 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <label className="text-sm font-medium mb-1 block">模型</label>
-            <select value={model || config.defaultModel} onChange={(e) => setLocalModel(e.target.value)}
-              className="w-full text-sm p-2 rounded-md border bg-background font-mono appearance-none cursor-pointer">
-              {GROQ_MODELS.map((m) => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+            <input type="text" placeholder={config.defaultModel}
+              value={model || config.defaultModel} onChange={(e) => setLocalModel(e.target.value)}
+              className="w-full text-sm p-2 rounded-md border bg-background font-mono" />
           </div>
         </>
       )}
@@ -119,8 +123,14 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
       <p className="text-[11px] text-muted-foreground bg-muted rounded-md p-2">
         {isFree
           ? "模拟 LLM 不需要 API Key，适合先跑通课程。"
-          : "Key 只存放在你的浏览器本地，并直接发送给 Groq。"}
+          : "Key 只存放在你的浏览器本地。API 请求会直接发往你填写的 Base URL。"}
       </p>
+
+      {testResult && (
+        <p className={`text-xs leading-relaxed ${testResult.ok ? "text-emerald-400" : "text-red-400"}`}>
+          {testResult.ok ? `测试成功：${testResult.message}` : `测试失败：${testResult.message}`}
+        </p>
+      )}
 
       <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={revokeAll}>
@@ -128,6 +138,11 @@ function ApiKeyForm({ onClose }: { onClose: () => void }) {
         </Button>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onClose}>取消</Button>
+          {!isFree && currentKey && (
+            <Button variant="outline" onClick={handleTest} disabled={testing}>
+              {testing ? "测试中..." : "测试"}
+            </Button>
+          )}
           <Button onClick={save}>保存</Button>
         </div>
       </div>
