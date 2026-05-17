@@ -42,6 +42,7 @@ async def pyfetch(url, **kwargs):
             "model": req_body.get("model", ""),
             "messages": req_body.get("messages", []),
             "tools": [t.get("function", {}).get("name", "") for t in req_body.get("tools", [])],
+            "tool_definitions": req_body.get("tools", []),
         })
     resp = await _raw_pyfetch(url, **kwargs)
     if is_llm:

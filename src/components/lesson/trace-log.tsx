@@ -3,6 +3,7 @@
 import { useRef, useEffect, useMemo } from "react";
 import { MonitorEntry } from "@/hooks/use-monitor";
 import { Turn } from "@/hooks/use-turns";
+import { LlmTraceDetail } from "./llm-trace-detail";
 import { MonitorEntryRow } from "./monitor-entry";
 import { MonitorJsonBlock } from "./monitor-json-block";
 
@@ -78,7 +79,11 @@ export function TraceLog({
             }`}>
               <MonitorEntryRow entry={entry} />
               {entry.detail && (
-                <MonitorJsonBlock label="详情" data={entry.detail} />
+                entry.traceType === "llm_request" || entry.traceType === "llm_response" ? (
+                  <LlmTraceDetail traceType={entry.traceType} data={entry.detail} />
+                ) : (
+                  <MonitorJsonBlock label="详情" data={entry.detail} />
+                )
               )}
             </div>
           </div>
