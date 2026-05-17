@@ -126,7 +126,21 @@ describe("lesson registry", () => {
     expect(lesson!.fullCode).toContain("SKILL.md");
     expect(lesson!.fullCode).toContain("scripts/check_review.py");
     expect(lesson!.steps.map((step) => step.id)).toEqual(
-      expect.arrayContaining(["bundle", "index", "activate", "run"]),
+      expect.arrayContaining(["standard", "example", "index", "activate", "run"]),
     );
+  });
+
+  it("teaches the standard skill bundle before introducing a concrete skill example", () => {
+    const lesson = getLessonBySlug("skills")!;
+    const standardStep = lesson.steps.find((step) => step.id === "standard")!;
+    const exampleStep = lesson.steps.find((step) => step.id === "example")!;
+
+    expect(standardStep.prose).toContain("skill-name/");
+    expect(standardStep.prose).toContain("metadata");
+    expect(standardStep.prose).not.toContain("code-review/");
+    expect(exampleStep.prose).toContain("code-review");
+    expect(lesson.fullCode).toContain("build_skill_index");
+    expect(lesson.fullCode).toContain("索引完成: {len(index)} 个 skill；references/scripts 尚未加载");
+    expect(lesson.fullCode).toContain("load_skill_bundle");
   });
 });

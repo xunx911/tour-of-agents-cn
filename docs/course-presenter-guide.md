@@ -309,24 +309,26 @@ Agent 会记住信息、会调用工具，也可能做危险事。生产环境�
 
 讲稿：
 
-工具是一个函数，Skill 是一整套可复用能力。专业的 Skill Bundle 通常是一个目录：`SKILL.md` 写明什么时候用、怎么用，`scripts/` 放确定性程序，`references/` 或 `assets/` 放按需读取的资料。
+这一课先不要急着讲某个具体 skill。先给学生一个标准定义：Skill 是一个标准化能力包，不是单个工具函数，也不是一句提示词。标准目录通常包含必需的 `SKILL.md`，以及可选的 `scripts/`、`references/`、`assets/`、`templates/`。
 
-这一课要强调两件事：第一，不要一次性把所有 skill 的完整内容塞进上下文，而是先索引 `SKILL.md` 的 frontmatter；第二，命中后再加载完整说明，并通过 `run_script(path, payload)` 这类接口运行脚本。课程里是模拟运行，但接口已经为真实沙箱或真实文件系统预留。
+讲完标准以后，再进入 `code-review` 和 `meeting-notes` 两个例子。这里要强调渐进式加载：运行器先只读每个 `SKILL.md` 的 frontmatter 建索引；命中任务以后，才加载完整 `SKILL.md`、读取 `references/`，并通过 `run_script(path, payload)` 运行 `scripts/`。课程里是模拟运行，但接口已经为真实沙箱或真实文件系统预留。
 
 点击步骤：
 
-1. 点击“运行”。
-2. 点击样例“审查这段函数：def add(a, b): return a - b”。
-3. 观察 Trace 中先出现 `Indexed skill: code-review`。
-4. 观察策略检查如何匹配 description。
-5. 观察 `run_script: scripts/check_review.py` 和脚本结果。
-6. 如需收尾，点击“完成”。
+1. 先停在第一步，讲清楚通用目录：`skill-name/SKILL.md`、`scripts/`、`references/`、`assets/`、`templates/`。
+2. 切到第二步，说明 `code-review` 只是一个例子，不是 Skill 的定义本身。
+3. 点击样例“审查这段函数：def add(a, b): return a - b”。
+4. 观察 Trace 中先出现发现已安装 skills，然后只读取索引。
+5. 观察 `policy_check` 命中 `code-review` 以后，才出现“加载完整说明”和“按需读取参考资料”。
+6. 观察 `run_script: code-review/scripts/check_review.py` 和脚本结果。
+7. 如需对比，再点“随便聊聊 Python”，说明未命中时不会加载 references 或 scripts。
 
 预期看到：
 
-- Skill 先被索引，而不是直接全部加载。
-- 命中任务后才读取 `SKILL.md`。
-- `scripts/check_review.py` 通过模拟接口执行。
+- 第一屏讲的是通用标准，不把 `code-review` 当成定义。
+- Trace 能看出：先发现和索引，再匹配，再加载完整 bundle。
+- 未命中的 skill 不会读取 `references/` 或运行 `scripts/`。
+- `code-review/scripts/check_review.py` 通过模拟接口执行。
 - 最终输出指出 `add` 实现成了减法，并建议补测试。
 
 收尾台词：
