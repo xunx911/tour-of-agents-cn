@@ -12,7 +12,7 @@ import {
 
 type LlmTraceType = "llm_request" | "llm_response";
 type RequestTab = "json" | "serialized" | "tokens";
-type ResponseTab = "json" | "tokens";
+type ResponseTab = "json" | "serialized" | "tokens";
 
 interface LlmTraceDetailProps {
   traceType: LlmTraceType;
@@ -67,6 +67,12 @@ export function LlmTraceDetail({ traceType, data }: LlmTraceDetailProps) {
               <>
                 <TraceTab active={responseTab === "json"} onClick={() => setResponseTab("json")}>
                   响应 JSON
+                </TraceTab>
+                <TraceTab
+                  active={responseTab === "serialized"}
+                  onClick={() => setResponseTab("serialized")}
+                >
+                  序列化文本
                 </TraceTab>
                 <TraceTab active={responseTab === "tokens"} onClick={() => setResponseTab("tokens")}>
                   输出 Token

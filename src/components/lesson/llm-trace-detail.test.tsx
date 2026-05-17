@@ -27,11 +27,12 @@ describe("LlmTraceDetail", () => {
     expect(screen.queryByText("demo")).not.toBeInTheDocument();
   });
 
-  it("renders response output token tab with usage", () => {
+  it("renders response serialized text and output token tabs with usage", () => {
     render(
       <LlmTraceDetail
         traceType="llm_response"
         data={{
+          model: "tiny-mock-v1",
           content: "你好",
           usage: { prompt_tokens: 10, completion_tokens: 2 },
         }}
@@ -39,6 +40,12 @@ describe("LlmTraceDetail", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "详情" }));
+
+    expect(screen.getByRole("button", { name: "序列化文本" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "序列化文本" }));
+
+    expect(screen.getByText(/<\|im_start\|>assistant/)).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole("button", { name: "输出 Token" }));
 
     expect(screen.getByText(/completion_tokens: 2/)).toBeInTheDocument();

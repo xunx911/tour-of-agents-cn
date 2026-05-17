@@ -51,6 +51,7 @@ async def pyfetch(url, **kwargs):
             resp_json = json.loads(resp_text)
             msg = resp_json.get("choices", [{}])[0].get("message", {})
             trace("llm_response", "LLM Response", {
+                "model": req_body.get("model", ""),
                 "content": msg.get("content"),
                 "tool_calls": [
                     {"name": tc["function"]["name"], "args": json.loads(tc["function"]["arguments"])}

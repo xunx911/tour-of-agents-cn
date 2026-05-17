@@ -52,6 +52,7 @@ export interface TokenInspection {
 interface ChatMessage {
   role: string;
   content?: unknown;
+  tool_calls?: unknown;
 }
 
 interface RequestInspectionInput {
@@ -70,6 +71,9 @@ interface ResponseInspectionInput {
 
 const QWEN_IM_START_ID = 151644;
 const QWEN_IM_END_ID = 151645;
+const QWEN_TOOL_CALL_START_ID = 151657;
+const QWEN_TOOL_CALL_END_ID = 151658;
+const QWEN_DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud.\nYou are a helpful assistant.";
 
 export function serializeQwenChatTemplate(input: {
   messages: ChatMessage[];
@@ -87,22 +91,52 @@ export function serializeQwenChatTemplate(input: {
   }
 
   const messages = [...input.messages];
-  const toolsText = toolsToText(input.tools);
-  if (toolsText) {
-    messages.unshift({
-      role: "system",
-      content: `可用工具(JSON):\n${toolsText}`,
-    });
-  }
+  const tools = normalizeTools(input.tools);
+  appendQwenSystemPrelude({
+    append,
+    messages,
+    tools,
+  });
 
-  for (const message of messages) {
+  let index = 0;
+  while (index < messages.length) {
+    const message = messages[index];
     const role = normalizeRole(message.role);
+
+    if (index === 0 && role === "system") {
+      index += 1;
+      continue;
+    }
+
+    if (role === "tool") {
+      appendQwenToolResponseGroup({
+        append,
+        messages,
+        startIndex: index,
+      });
+      while (index < messages.length && normalizeRole(messages[index].role) === "tool") {
+        index += 1;
+      }
+      continue;
+    }
+
+    if (role === "assistant" && hasToolCalls(message.tool_calls)) {
+      appendQwenAssistantMessage({
+        append,
+        content: message.content,
+        toolCalls: message.tool_calls,
+      });
+      index += 1;
+      continue;
+    }
+
     append("<|im_start|>", "special", "<|im_start|>");
     append(role, "role", role);
     append("\n", "newline", "换行");
     append(contentToText(message.content), sourceForRole(role), `${role} content`);
     append("<|im_end|>", "special", "<|im_end|>");
     append("\n", "newline", "换行");
+    index += 1;
   }
 
   if (input.addGenerationPrompt ?? true) {
@@ -157,8 +191,35 @@ export function inspectLlmRequestTokens(detail: RequestInspectionInput): TokenIn
 }
 
 export function inspectLlmResponseTokens(detail: ResponseInspectionInput): TokenInspection {
-  const content = responseContentToText(detail);
+  const model = stringOrEmpty(detail.model);
   const usage = normalizeUsage(detail.usage);
+
+  if (supportsQwenTemplate(model)) {
+    const serialized = serializeQwenAssistantResponse(detail);
+    if (!serialized.text) {
+      return {
+        kind: "unavailable",
+        tokenizer: qwenTokenizerLabel(model),
+        title: "输出 Token 不可用",
+        notice: "响应中没有 assistant 文本或工具调用内容可供序列化。",
+        tokens: [],
+        usage,
+      };
+    }
+
+    return {
+      kind: "available",
+      tokenizer: qwenTokenizerLabel(model),
+      title: "连续输出 token 流",
+      notice:
+        "使用 Qwen2.5 chat template 展示 assistant 响应序列；已知 control/tool_call token 使用真实 tokenizer ID，普通文本保留可替换分词接口。",
+      serialized,
+      tokens: tokenizeQwenTeachingStream(serialized),
+      usage,
+    };
+  }
+
+  const content = responseContentToText(detail);
 
   if (!content) {
     return {
@@ -209,6 +270,7 @@ function normalizeMessages(messages: unknown): ChatMessage[] {
     return {
       role: stringOrEmpty(message.role) || "user",
       content: message.content,
+      tool_calls: message.tool_calls,
     };
   });
 }
@@ -228,6 +290,22 @@ function sourceForRole(role: string): TokenSource {
   return "text";
 }
 
+function normalizeTools(tools: unknown): unknown[] {
+  if (!tools) return [];
+  if (!Array.isArray(tools)) return [tools];
+  return tools
+    .filter((tool) => tool != null && tool !== "")
+    .map((tool) => {
+      if (typeof tool !== "string") return tool;
+      return {
+        type: "function",
+        function: {
+          name: tool,
+        },
+      };
+    });
+}
+
 function toolsToText(tools: unknown): string {
   if (!tools) return "";
   if (Array.isArray(tools) && tools.length === 0) return "";
@@ -235,6 +313,99 @@ function toolsToText(tools: unknown): string {
     return tools.map((tool) => `- ${tool}`).join("\n");
   }
   return stableJson(tools);
+}
+
+function appendQwenSystemPrelude({
+  append,
+  messages,
+  tools,
+}: {
+  append: (part: string, source: TokenSource, label: string) => void;
+  messages: ChatMessage[];
+  tools: unknown[];
+}) {
+  const firstMessage = messages[0];
+  const hasExplicitSystem = firstMessage && normalizeRole(firstMessage.role) === "system";
+  const systemContent = hasExplicitSystem
+    ? contentToText(firstMessage.content)
+    : QWEN_DEFAULT_SYSTEM_PROMPT;
+
+  append("<|im_start|>", "special", "<|im_start|>");
+  append("system", "role", "system");
+  append("\n", "newline", "换行");
+  append(systemContent, "system", "system content");
+
+  if (tools.length > 0) {
+    append(
+      "\n\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>",
+      "tool",
+      "Qwen tool instructions",
+    );
+    for (const tool of tools) {
+      append("\n", "newline", "换行");
+      append(compactJson(tool), "tool", "tool definition");
+    }
+    append(
+      "\n</tools>\n\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call>",
+      "tool",
+      "Qwen tool call format",
+    );
+  }
+
+  append("<|im_end|>", "special", "<|im_end|>");
+  append("\n", "newline", "换行");
+}
+
+function appendQwenAssistantMessage({
+  append,
+  content,
+  toolCalls,
+}: {
+  append: (part: string, source: TokenSource, label: string) => void;
+  content: unknown;
+  toolCalls: unknown;
+}) {
+  append("<|im_start|>", "special", "<|im_start|>");
+  append("assistant", "role", "assistant");
+
+  const contentText = contentToText(content);
+  if (contentText) {
+    append("\n", "newline", "换行");
+    append(contentText, "assistant", "assistant content");
+  }
+
+  for (const toolCall of normalizeToolCalls(toolCalls)) {
+    append("\n<tool_call>\n", "tool", "Qwen tool call start");
+    append(formatQwenToolCall(toolCall), "tool", "Qwen tool call payload");
+    append("\n</tool_call>", "tool", "Qwen tool call end");
+  }
+
+  append("<|im_end|>", "special", "<|im_end|>");
+  append("\n", "newline", "换行");
+}
+
+function appendQwenToolResponseGroup({
+  append,
+  messages,
+  startIndex,
+}: {
+  append: (part: string, source: TokenSource, label: string) => void;
+  messages: ChatMessage[];
+  startIndex: number;
+}) {
+  append("<|im_start|>", "special", "<|im_start|>");
+  append("user", "role", "user");
+
+  for (let index = startIndex; index < messages.length; index += 1) {
+    const message = messages[index];
+    if (normalizeRole(message.role) !== "tool") break;
+    append("\n<tool_response>\n", "tool_result", "Qwen tool response start");
+    append(contentToText(message.content), "tool_result", "tool response");
+    append("\n</tool_response>", "tool_result", "Qwen tool response end");
+  }
+
+  append("<|im_end|>", "special", "<|im_end|>");
+  append("\n", "newline", "换行");
 }
 
 function serializeVisibleMessages(messages: ChatMessage[], tools: unknown): SerializedChat {
@@ -270,11 +441,12 @@ function tokenizeQwenTeachingStream(serialized: SerializedChat): TokenChip[] {
     }
 
     for (const segment of splitVisibleSegments(part)) {
+      const qwenId = qwenAddedTokenId(segment);
       tokens.push({
-        id: null,
-        idLabel: span.source === "newline" ? "\\n" : "",
+        id: qwenId,
+        idLabel: qwenId == null ? (span.source === "newline" ? "\\n" : "") : String(qwenId),
         text: segment === "\n" ? "\\n" : segment,
-        source: span.source,
+        source: qwenId == null ? span.source : "tool",
         label: span.label,
       });
     }
@@ -317,11 +489,41 @@ function openAiEncodingLabel(model: string): string {
 }
 
 function qwenTokenizerLabel(model: string): string {
-  return model.startsWith("tiny-") ? "Qwen ChatML 课程视图" : "Qwen ChatML adapter";
+  return model.startsWith("tiny-") ? "Qwen2.5 ChatML 模板" : "Qwen ChatML adapter";
 }
 
 function splitVisibleSegments(text: string): string[] {
-  return text.match(/\n|\s+|[\u4e00-\u9fff]|[A-Za-z0-9_]+|[^\s]/g) ?? [];
+  return text.match(/<\/?tool_call>|<\/?tool_response>|<\/?tools>|\n|\s+|[\u4e00-\u9fff]|[A-Za-z0-9_]+|[^\s]/g) ?? [];
+}
+
+function qwenAddedTokenId(text: string): number | null {
+  if (text === "<tool_call>") return QWEN_TOOL_CALL_START_ID;
+  if (text === "</tool_call>") return QWEN_TOOL_CALL_END_ID;
+  return null;
+}
+
+function serializeQwenAssistantResponse(detail: ResponseInspectionInput): SerializedChat {
+  const spans: SerializedChatSpan[] = [];
+  let text = "";
+
+  function append(part: string, source: TokenSource, label: string) {
+    if (!part) return;
+    const start = text.length;
+    text += part;
+    spans.push({ start, end: text.length, source, label });
+  }
+
+  const content = typeof detail.content === "string" ? detail.content : "";
+  const toolCalls = normalizeToolCalls(detail.tool_calls);
+  if (!content && toolCalls.length === 0) return { text: "", spans: [] };
+
+  appendQwenAssistantMessage({
+    append,
+    content,
+    toolCalls,
+  });
+
+  return { text, spans };
 }
 
 function visibleTokenText(text: string): string {
@@ -345,6 +547,55 @@ function responseContentToText(detail: ResponseInspectionInput): string {
   return "";
 }
 
+interface NormalizedToolCall {
+  name: string;
+  arguments: unknown;
+}
+
+function hasToolCalls(value: unknown): boolean {
+  return normalizeToolCalls(value).length > 0;
+}
+
+function normalizeToolCalls(value: unknown): NormalizedToolCall[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item): NormalizedToolCall[] => {
+    if (!isRecord(item)) return [];
+
+    const functionCall = isRecord(item.function) ? item.function : undefined;
+    const name = stringOrEmpty(functionCall?.name) || stringOrEmpty(item.name);
+    if (!name) return [];
+
+    const rawArguments =
+      functionCall && "arguments" in functionCall
+        ? functionCall.arguments
+        : "arguments" in item
+          ? item.arguments
+          : "args" in item
+            ? item.args
+            : {};
+
+    return [
+      {
+        name,
+        arguments: parseToolArguments(rawArguments),
+      },
+    ];
+  });
+}
+
+function parseToolArguments(value: unknown): unknown {
+  if (typeof value !== "string") return value ?? {};
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function formatQwenToolCall(toolCall: NormalizedToolCall): string {
+  return `{"name": ${JSON.stringify(toolCall.name)}, "arguments": ${compactJson(toolCall.arguments)}}`;
+}
+
 function normalizeUsage(usage: unknown): TokenUsage | undefined {
   if (!isRecord(usage)) return undefined;
   return {
@@ -365,6 +616,14 @@ function stringOrEmpty(value: unknown): string {
 function stableJson(value: unknown): string {
   try {
     return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function compactJson(value: unknown): string {
+  try {
+    return JSON.stringify(value) ?? "null";
   } catch {
     return String(value);
   }
