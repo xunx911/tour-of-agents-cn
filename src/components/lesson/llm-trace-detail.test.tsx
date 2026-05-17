@@ -24,6 +24,7 @@ describe("LlmTraceDetail", () => {
 
     expect(screen.getAllByText("<|im_start|>").length).toBeGreaterThan(0);
     expect(screen.getByText(/连续 token 流/)).toBeInTheDocument();
+    expect(screen.queryByText("demo")).not.toBeInTheDocument();
   });
 
   it("renders response output token tab with usage", () => {

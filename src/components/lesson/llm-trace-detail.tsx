@@ -161,7 +161,7 @@ function TraceNotice({ inspection }: { inspection: TokenInspection }) {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="font-semibold text-foreground">{inspection.title}</span>
         <span>tokenizer: {inspection.tokenizer}</span>
-        <span>状态: {inspection.kind}</span>
+        <span>状态: {formatKind(inspection.kind)}</span>
         {formatUsage(inspection.usage) && <span>{formatUsage(inspection.usage)}</span>}
       </div>
       <p>{inspection.notice}</p>
@@ -172,15 +172,17 @@ function TraceNotice({ inspection }: { inspection: TokenInspection }) {
 function TokenChipView({ token }: { token: TokenChip }) {
   return (
     <span
-      title={`${token.label} · ${token.idLabel}`}
-      aria-label={`${token.label} ${token.text} ${token.idLabel}`}
+      title={[token.label, token.idLabel].filter(Boolean).join(" · ")}
+      aria-label={[token.label, token.text, token.idLabel].filter(Boolean).join(" ")}
       className={cn(
         "inline-flex min-w-0 items-center gap-1 rounded-md border px-1.5 py-1 text-[10px] leading-none",
         "max-w-full bg-background/80 shadow-[0_1px_0_rgba(0,0,0,0.03)]",
         sourceClassName(token.source),
       )}
     >
-      <span className="shrink-0 text-[9px] opacity-65">{token.idLabel}</span>
+      {token.idLabel && (
+        <span className="shrink-0 text-[9px] opacity-65">{token.idLabel}</span>
+      )}
       <span className="truncate">{token.text}</span>
     </span>
   );
@@ -246,4 +248,17 @@ function formatUsage(usage: TokenInspection["usage"]): string {
     usage.total_tokens !== undefined ? `total_tokens: ${usage.total_tokens}` : "",
   ].filter(Boolean);
   return parts.join(" · ");
+}
+
+function formatKind(kind: TokenInspection["kind"]): string {
+  switch (kind) {
+    case "available":
+      return "可用";
+    case "limited":
+      return "受限";
+    case "unavailable":
+      return "不可用";
+    case "error":
+      return "出错";
+  }
 }

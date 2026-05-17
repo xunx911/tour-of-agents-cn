@@ -126,8 +126,8 @@ export function inspectLlmRequestTokens(detail: RequestInspectionInput): TokenIn
       tokenizer: qwenTokenizerLabel(model),
       title: "连续 token 流",
       notice:
-        model === "tiny-free"
-          ? "课程演示模式使用 Qwen ChatML 结构展示 special token；普通文本为教学分片，未伪造成真实 Qwen BPE id。"
+        model.startsWith("tiny-")
+          ? "使用 Qwen ChatML control tokens 展示连续输入；普通内容按可见文本分片展示，不伪造 Qwen BPE id。"
           : "使用 Qwen ChatML control tokens 展示连续输入；普通文本分片等待真实 Qwen tokenizer adapter 替换为精确 BPE id。",
       serialized,
       tokens: tokenizeQwenTeachingStream(serialized),
@@ -272,7 +272,7 @@ function tokenizeQwenTeachingStream(serialized: SerializedChat): TokenChip[] {
     for (const segment of splitVisibleSegments(part)) {
       tokens.push({
         id: null,
-        idLabel: span.source === "newline" ? "\\n" : "demo",
+        idLabel: span.source === "newline" ? "\\n" : "",
         text: segment === "\n" ? "\\n" : segment,
         source: span.source,
         label: span.label,
@@ -317,7 +317,7 @@ function openAiEncodingLabel(model: string): string {
 }
 
 function qwenTokenizerLabel(model: string): string {
-  return model.startsWith("tiny-") ? "Qwen ChatML teaching view" : "Qwen ChatML adapter";
+  return model.startsWith("tiny-") ? "Qwen ChatML 课程视图" : "Qwen ChatML adapter";
 }
 
 function splitVisibleSegments(text: string): string[] {

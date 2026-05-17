@@ -17,7 +17,7 @@ describe("token stream inspection", () => {
     expect(serialized.spans.map((span) => span.label)).toContain("<|im_end|>");
   });
 
-  it("builds a continuous token sequence for the course demo model", () => {
+  it("builds a continuous token sequence for the course model without demo labels", () => {
     const result = inspectLlmRequestTokens({
       model: "tiny-mock-v1",
       messages: [{ role: "user", content: "你好" }],
@@ -27,6 +27,8 @@ describe("token stream inspection", () => {
     expect(result.kind).toBe("available");
     expect(result.tokens.map((token) => token.text)).toContain("<|im_start|>");
     expect(result.tokens.map((token) => token.text)).toContain("<|im_end|>");
+    expect(result.tokens.map((token) => token.idLabel)).not.toContain("demo");
+    expect(result.tokenizer).not.toMatch(/demo|teaching/i);
     expect(result.tokens[0].source).toBe("special");
   });
 
