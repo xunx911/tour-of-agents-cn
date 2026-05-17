@@ -47,7 +47,7 @@ export function CertificatePage({ name }: CertificatePageProps) {
             <Link href="/" className="underline underline-offset-2 hover:text-foreground">
               A Tour of Agents
             </Link>
-            {" "}的 9 节课程
+            {" "}的 10 节课程
           </p>
         </div>
       </div>

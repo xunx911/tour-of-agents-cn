@@ -13,11 +13,11 @@ export const entries: BuildLogEntry[] = [
     title: "Week 0: The Build",
     week: "Mar 9–10",
     date: "2026-03-10",
-    description: "Shipped the entire 9-lesson course in two days. Pyodide, React Flow, trace pipeline, deployed on Railway.",
+    description: "Shipped the initial course in two days. Pyodide, React Flow, trace pipeline, deployed on Railway.",
     sections: [
       {
-        heading: "Two days, nine lessons",
-        body: "The idea was simple: teach AI agents by building one from scratch. No framework, no install, everything runs in the browser. I wrote all 9 lessons in two days — from \"an agent is a function\" to \"the whole thing in 60 lines.\" Pyodide handles Python in WebAssembly. React Flow renders animated architecture diagrams. A custom trace pipeline shows every HTTP call and tool dispatch in real time.",
+        heading: "Two days, one complete first pass",
+        body: "The idea was simple: teach AI agents by building one from scratch. No framework, no install, everything runs in the browser. I wrote the first pass in two days — from \"an agent is a function\" to \"the whole thing in 60 lines.\" Pyodide handles Python in WebAssembly. React Flow renders animated architecture diagrams. A custom trace pipeline shows every HTTP call and tool dispatch in real time.",
       },
       {
         heading: "V2 redesign on day 2",
@@ -25,7 +25,7 @@ export const entries: BuildLogEntry[] = [
       },
       {
         heading: "What I shipped",
-        body: "9 lessons covering: agent function, tool calling, the agent loop, conversation history, state tracking, persistent memory, guardrails, self-scheduling, and the full agent composed in ~60 lines. Each lesson has interactive code you run in the browser, a live architecture diagram, and a monitor showing the raw HTTP traffic. Mock LLM mode for people without API keys.",
+        body: "The initial course covered: agent function, tool calling, the agent loop, conversation history, state tracking, persistent memory, guardrails, planning, and the full agent composed in ~60 lines. Each lesson has interactive code you run in the browser, a live architecture diagram, and a monitor showing the raw HTTP traffic. Mock LLM mode for people without API keys.",
       },
     ],
   },
@@ -109,7 +109,7 @@ export const entries: BuildLogEntry[] = [
       },
       {
         heading: "26 new pages in one session",
-        body: "Google had only indexed 2 pages and was showing wrong descriptions. Shipped a full SEO overhaul: /learn pages (article versions of all 9 lessons), /compare pages (LangChain, CrewAI, AutoGen, OpenAI SDK vs plain Python), and /blog with 4 cornerstone articles. All content auto-generated from existing lesson data — zero new writing needed. Every page has full metadata, JSON-LD structured data, and links back to the interactive course.",
+        body: "Google had only indexed 2 pages and was showing wrong descriptions. Shipped a full SEO overhaul: /learn pages for every lesson, /compare pages (LangChain, CrewAI, AutoGen, OpenAI SDK vs plain Python), and /blog with 4 cornerstone articles. All content auto-generated from existing lesson data — zero new writing needed. Every page has full metadata, JSON-LD structured data, and links back to the interactive course.",
       },
       {
         heading: "The build-vs-buy angle",

@@ -8,6 +8,7 @@ import { lesson06 } from "./lessons/06-memory";
 import { lesson07 } from "./lessons/07-policy";
 import { lesson08 } from "./lessons/08-self-scheduling";
 import { lesson09 } from "./lessons/09-the-whole-thing";
+import { lesson10 } from "./lessons/10-skills";
 
 export const allLessons: LessonDefinition[] = [
   lesson01,
@@ -19,6 +20,7 @@ export const allLessons: LessonDefinition[] = [
   lesson07,
   lesson08,
   lesson09,
+  lesson10,
 ];
 
 export function getLessonBySlug(slug: string) {

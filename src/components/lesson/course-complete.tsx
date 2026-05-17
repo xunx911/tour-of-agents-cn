@@ -74,7 +74,7 @@ export function CourseCompleteModal({
           你已经搭完一个 Agent 框架。
         </p>
         <p className="text-sm text-muted-foreground">
-          9 节课，约 60 行核心代码。没有魔法，只有函数、工具、循环、状态和记忆。
+          10 节课，核心边界都跑过一遍。没有魔法，只有函数、工具、循环、状态、记忆和 Skill。
         </p>
 
         <div className="pt-2 space-y-3 text-left">

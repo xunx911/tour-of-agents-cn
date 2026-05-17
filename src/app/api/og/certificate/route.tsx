@@ -6,7 +6,7 @@ export const runtime = "edge";
 const LESSONS = [
   "The Agent Function", "Tools = Dict", "The Agent Loop",
   "Conversation", "State = Dict", "Memory",
-  "Policy", "Plan & Execute", "The Whole Thing",
+  "Policy", "Plan & Execute", "The Whole Thing", "Skills",
 ];
 
 export async function GET(req: NextRequest) {
@@ -104,8 +104,8 @@ export async function GET(req: NextRequest) {
             gap: 4,
           }}
         >
-          <span>Completed all 9 lessons and built a complete</span>
-          <span>AI agent framework in ~60 lines of Python</span>
+          <span>Completed all 10 lessons and built a complete</span>
+          <span>AI agent framework with reusable skills</span>
         </div>
 
         {/* Lessons grid */}

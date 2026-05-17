@@ -13,7 +13,7 @@ export async function generateMetadata({
   const displayName = raw.replace(/\b\w/g, (c) => c.toUpperCase());
   const title = `${displayName} completed A Tour of Agents`;
   const description =
-    "9 lessons. 60 lines of Python. Built an AI agent framework from scratch — no LangChain, no abstractions.";
+    "10 lessons. Built an AI agent framework from scratch, including tools, loops, memory, guardrails, planning, and skill bundles.";
   const ogImage = `${SITE}/api/og/certificate?name=${encodeURIComponent(displayName)}`;
   const url = `${SITE}/certificate?name=${encodeURIComponent(displayName)}`;
 

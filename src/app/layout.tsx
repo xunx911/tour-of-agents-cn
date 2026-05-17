@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "A Tour of Agents 中文交互教程",
     description:
-      "9 节交互课，在浏览器里理解 LLM Agent 的底层模式。",
+      "10 节交互课，在浏览器里理解 LLM Agent 的底层模式。",
     url: SITE_URL,
     siteName: "A Tour of Agents",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "A Tour of Agents — interactive agent-building course" }],
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "A Tour of Agents 中文交互教程",
     description:
-      "9 节交互课，在浏览器里理解 LLM Agent 的底层模式。",
+      "10 节交互课，在浏览器里理解 LLM Agent 的底层模式。",
     images: ["/og-image.png"],
   },
   alternates: { canonical: SITE_URL },

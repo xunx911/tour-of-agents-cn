@@ -15,7 +15,7 @@ export function CourseJsonLd() {
     name: "A Tour of Agents",
     headline: "Build AI Agents from Scratch in Python — No Framework Required",
     description:
-      "Interactive course: build a complete AI agent in ~60 lines of Python. 9 lessons covering the architecture behind LangChain, CrewAI, and AutoGen.",
+      "Interactive course: build a complete AI agent from scratch. 10 lessons covering tools, loops, memory, guardrails, plan-and-execute, and skill bundles.",
     url: SITE_URL,
     image: OG_IMAGE,
     provider: PUBLISHER_JSONLD,

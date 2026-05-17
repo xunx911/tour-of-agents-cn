@@ -74,7 +74,7 @@ export function ComparisonArticle({ fw }: { fw: FrameworkComparison }) {
       <aside className="p-6 rounded-lg bg-muted/50 border border-border mb-8">
         <p className="font-semibold mb-2">Learn the fundamentals</p>
         <p className="text-sm text-muted-foreground mb-4">
-          Build every concept in this table from scratch in 9 interactive
+          Build every concept in this table from scratch in 10 interactive
           Python lessons. No install, runs in your browser.
         </p>
         <Link

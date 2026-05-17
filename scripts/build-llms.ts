@@ -4,8 +4,8 @@
  *
  * Emits to public/:
  *   llms-full.txt          single dense file: lessons + blogs + vs/* + compare
- *   lesson/<slug>.md       per-lesson markdown mirror (×9)
- *   learn/<slug>.md        same content, different SEO surface (×9)
+ *   lesson/<slug>.md       per-lesson markdown mirror
+ *   learn/<slug>.md        same content, different SEO surface
  *   blog/<slug>.md         blog post markdown (×8)
  *   compare/<slug>.md      framework single-page comparison (×20)
  *   vs/<pair>.md           head-to-head markdown — only the 28 with overrides

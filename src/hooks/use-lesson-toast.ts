@@ -16,7 +16,7 @@ export function useLessonToast(lessonNumber: number) {
       shown.current = true;
       const msg = LESSON_TOAST[lessonNumber];
       const nextSlug = NEXT_LESSON_SLUG[lessonNumber];
-      if (msg && lessonNumber < 9 && nextSlug) {
+      if (msg && lessonNumber < 10 && nextSlug) {
         toast.success(msg, {
           duration: 5000,
           action: {

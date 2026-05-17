@@ -4,7 +4,7 @@ export const tinyAgentsHuggingfaceVsFromScratch: BlogPost = {
   slug: "tiny-agents-huggingface-vs-from-scratch",
   title: "tinyagents.dev vs HuggingFace tiny-agents — Course or MCP Library?",
   description:
-    "Two different projects share the name. HuggingFace tiny-agents is an MCP library in JavaScript. tinyagents.dev (A Tour of Agents) is a Python course teaching agent fundamentals in 9 interactive lessons. Here's how to tell them apart and when to use each.",
+    "Two different projects share the name. HuggingFace tiny-agents is an MCP library in JavaScript. tinyagents.dev (A Tour of Agents) is a Python course teaching agent fundamentals in 10 interactive lessons. Here's how to tell them apart and when to use each.",
   date: "2026-03-31",
   keywords: [
     "tinyagents.dev", "tiny agents", "huggingface tiny agents",
@@ -17,7 +17,7 @@ export const tinyAgentsHuggingfaceVsFromScratch: BlogPost = {
   sections: [
     {
       heading: "Did you mean the library or the course?",
-      body: "If you searched for \"tiny agents\" you might have landed on either of two different projects. HuggingFace tiny-agents (huggingface.co/blog/tiny-agents) is a JavaScript MCP library you import into Node.js projects — roughly 50 lines, designed for shipping production agents. tinyagents.dev (this site, also called A Tour of Agents) is an interactive Python course — 9 browser-based lessons that teach agent internals in roughly 60 lines of plain Python. Same name, different artifacts. If you want a library to install and run, you want the HuggingFace one. If you want to understand what any agent framework actually does under the hood — including HuggingFace's — you want the course. Both believe the same thing: agents are simpler than frameworks make them look. Both prove it with line counts. The rest of this post explains where each fits.",
+      body: "If you searched for \"tiny agents\" you might have landed on either of two different projects. HuggingFace tiny-agents (huggingface.co/blog/tiny-agents) is a JavaScript MCP library you import into Node.js projects — roughly 50 lines, designed for shipping production agents. tinyagents.dev (this site, also called A Tour of Agents) is an interactive Python course — 10 browser-based lessons that teach agent internals in plain Python. Same name, different artifacts. If you want a library to install and run, you want the HuggingFace one. If you want to understand what any agent framework actually does under the hood — including HuggingFace's — you want the course. Both believe the same thing: agents are simpler than frameworks make them look. Both prove it with line counts. The rest of this post explains where each fits.",
     },
     {
       heading: "What HuggingFace Tiny Agents does",
@@ -44,7 +44,7 @@ export const tinyAgentsHuggingfaceVsFromScratch: BlogPost = {
       body: "Every agent framework wraps the same eight concepts. An agent is a function. Tools are a dict. The loop is a while loop. Conversation is a list that grows. State is a dict updated each turn. Memory is a dict injected into the system prompt. Guardrails are gate functions on input and output. Self-scheduling is a task queue. When you see the whole thing in 60 lines of plain Python, two things happen. First, the mystery disappears — agents aren't magic, they're a pattern. Second, framework evaluation becomes trivial — you know exactly what each abstraction replaces and can judge whether the tradeoff is worth it. That's the real value of building from scratch. Not to avoid frameworks forever, but to choose them wisely.",
     },
   ],
-  cta: "Build the agent yourself — 9 interactive lessons, no install, runs in your browser.",
+  cta: "Build the agent yourself — 10 interactive lessons, no install, runs in your browser.",
   relatedLinks: [
     { label: "Learn: The Agent Function", href: "/learn/agent-function" },
     { label: "Learn: The Agent Loop", href: "/learn/agent-loop" },

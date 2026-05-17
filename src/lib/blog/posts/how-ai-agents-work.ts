@@ -59,7 +59,7 @@ export const howAiAgentsWork: BlogPost = {
     "AI agent task queue",
   ],
   sections,
-  cta: "Build it yourself in 9 interactive lessons — no install, runs in your browser.",
+  cta: "Build it yourself in 10 interactive lessons — no install, runs in your browser.",
   relatedLinks: [
     { label: "Learn: Agent = Function", href: "/learn/agent-function" },
     { label: "Learn: The Agent Loop", href: "/learn/agent-loop" },

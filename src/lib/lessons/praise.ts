@@ -14,6 +14,7 @@ export const CODE_PRAISE: Record<number, string> = {
   7: "策略控制。防止 Agent 乱来，靠的就是这类检查点。",
   8: "计划与执行。复杂任务先拆清楚，再一步步落地。",
   9: "约 60 行，一个完整 Agent 框架。现在你能看懂框架背后的部件了。",
+  10: "Skill Bundle 把提示词、脚本和参考资料打包成可复用能力。工具之上又多了一层清晰边界。",
 };
 
 /** Shown as toast when lesson is completed (code runs successfully) */
@@ -25,8 +26,9 @@ export const LESSON_TOAST: Record<number, string> = {
   5: "完成。但关闭标签页后，这些状态仍然不见了 →",
   6: "完成。记忆可以持久化了，但 Agent 乱来怎么办？→",
   7: "完成。它更安全了，现在让它先做计划再执行 →",
-  8: "完成。还剩最后一课，把所有部件合起来 →",
-  9: "9 节课全部完成。",
+  8: "完成。现在把所有部件合起来 →",
+  9: "完成。最后看 Skill 如何把能力打包复用 →",
+  10: "10 节课全部完成。",
 };
 
 /** Next lesson slugs for toast click-through */
@@ -39,4 +41,5 @@ export const NEXT_LESSON_SLUG: Record<number, string> = {
   6: "policy",
   7: "self-scheduling",
   8: "the-whole-thing",
+  9: "skills",
 };

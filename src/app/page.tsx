@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "A Tour of Agents 中文交互教程",
     description:
-      "9 节交互课，用 60 行 Python 理解 LLM Agent 的底层模式。",
+      "10 节交互课，用 Python 理解 LLM Agent 的底层模式。",
     url: SITE_URL,
     siteName: "A Tour of Agents",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -35,13 +35,13 @@ export default function HomePage() {
       <ValueProps />
       <section className="max-w-2xl mx-auto px-6 py-12">
         <h2 className="text-lg font-semibold mb-2 text-center">
-          9 节课，每一节都接上上一节。
+          10 节课，每一节都接上上一节。
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-2">
           可以从任意一课开始。每节课都能在浏览器里直接运行。
         </p>
         <p className="text-xs text-muted-foreground/70 text-center mb-6 max-w-md mx-auto">
-          从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和计划执行。
+          从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略、计划执行和 Skill Bundle。
         </p>
         <nav aria-label="课程列表">
           <ol className="space-y-4">

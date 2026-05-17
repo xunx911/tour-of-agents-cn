@@ -30,7 +30,7 @@ export function Hero({ nextSlug, hasProgress, nextTitle }: HeroProps) {
           看懂 LangChain、CrewAI、AutoGen 底层到底在包装什么。
         </p>
         <p className="text-sm text-muted-foreground max-w-lg mx-auto mb-8">
-          9 节交互课程。写真实 Python，观察工具调用、循环、状态和 Trace。
+          10 节交互课程。写真实 Python，观察工具调用、循环、状态、Skill 和 Trace。
           默认使用模拟 LLM，也可以切到真实模型。
         </p>
 

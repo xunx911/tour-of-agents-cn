@@ -61,7 +61,7 @@ export const aiAgentFrameworkRanking2026: BlogPost = {
     "agent framework downloads",
   ],
   sections,
-  cta: "See all 20 frameworks reduced to 60 lines. 9 interactive lessons, no install, runs in your browser.",
+  cta: "See all 20 frameworks reduced to clear primitives. 10 interactive lessons, no install, runs in your browser.",
   relatedLinks: [
     {
       label: "Compare: LangChain vs plain Python",

@@ -1,7 +1,7 @@
 /**
  * Pattern-matching mock for the Tiny Agents (Free) provider.
  * Maps user messages to OpenAI-format tool_calls or text responses.
- * Covers Chinese and English sample inputs from lessons 1-9.
+ * Covers Chinese and English sample inputs from the interactive lessons.
  */
 
 export type MockResult =

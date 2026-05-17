@@ -9,14 +9,14 @@ const SITE = "https://tinyagents.dev";
 export const metadata: Metadata = {
   title: "从零学习 AI Agent — A Tour of Agents",
   description:
-    "9 节交互课程，用 Python 从零理解 AI Agent：工具调用、Agent 循环、记忆、策略和计划执行。",
+    "10 节交互课程，用 Python 从零理解 AI Agent：工具调用、Agent 循环、记忆、策略、计划执行和 Skill Bundle。",
   keywords: [
     "学习 AI Agent", "AI Agent 教程", "Python AI Agent",
     "LLM 工具调用", "Agent 循环", "ReAct 模式",
   ],
   openGraph: {
     title: "从零学习 AI Agent — A Tour of Agents",
-    description: "9 节交互课程，用 60 行 Python 理解 LLM Agent 的底层模式。",
+    description: "10 节交互课程，用 Python 理解 LLM Agent 的底层模式。",
     url: `${SITE}/learn`,
     type: "website",
     images: [{ url: "/og-image.png", width: 1200, height: 630 }],
@@ -37,8 +37,7 @@ export default function LearnIndex() {
         从零搭一个 AI Agent
       </h1>
       <p className="text-lg text-muted-foreground mb-8">
-        9 节交互课程，用约 60 行 Python 看懂 LangChain、CrewAI、AutoGen
-        这类框架底层在做什么。
+        10 节交互课程，用 Python 看懂 Agent 函数、工具、循环、记忆、计划执行和 Skill Bundle。
       </p>
 
       <div className="space-y-6">

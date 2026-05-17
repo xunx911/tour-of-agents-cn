@@ -8,11 +8,11 @@ import {
 } from "./registry";
 
 describe("lesson registry", () => {
-  it("has 9 lessons", () => {
-    expect(allLessons).toHaveLength(9);
+  it("has 10 lessons", () => {
+    expect(allLessons).toHaveLength(10);
   });
 
-  it("lessons are numbered 1-9 in order", () => {
+  it("lessons are numbered 1-10 in order", () => {
     allLessons.forEach((lesson, i) => {
       expect(lesson.number).toBe(i + 1);
     });
@@ -20,7 +20,7 @@ describe("lesson registry", () => {
 
   it("every lesson has unique slug", () => {
     const slugs = allLessons.map((l) => l.slug);
-    expect(new Set(slugs).size).toBe(9);
+    expect(new Set(slugs).size).toBe(10);
   });
 
   it("every lesson has required fields", () => {
@@ -80,8 +80,8 @@ describe("lesson registry", () => {
     expect(l2!.number).toBe(2);
   });
 
-  it("getNextLesson from 9 returns undefined", () => {
-    const last = getLessonByNumber(9)!;
+  it("getNextLesson from 10 returns undefined", () => {
+    const last = getLessonByNumber(10)!;
     expect(getNextLesson(last)).toBeUndefined();
   });
 
@@ -107,10 +107,26 @@ describe("lesson registry", () => {
   it("filenames match content", () => {
     const expected = [
       "agent-function", "tools", "agent-loop", "conversation",
-      "state", "memory", "policy", "self-scheduling", "the-whole-thing",
+      "state", "memory", "policy", "self-scheduling", "the-whole-thing", "skills",
     ];
     allLessons.forEach((lesson, i) => {
       expect(lesson.slug).toBe(expected[i]);
     });
+  });
+
+  it("adds a professional skill bundle lesson with standard SKILL.md structure", () => {
+    const lesson = getLessonBySlug("skills");
+
+    expect(lesson).toBeDefined();
+    expect(lesson!.number).toBe(10);
+    expect(lesson!.title).toContain("Skill");
+    expect(lesson!.concepts).toEqual(
+      expect.arrayContaining(["SKILL.md", "渐进加载", "脚本接口"]),
+    );
+    expect(lesson!.fullCode).toContain("SKILL.md");
+    expect(lesson!.fullCode).toContain("scripts/check_review.py");
+    expect(lesson!.steps.map((step) => step.id)).toEqual(
+      expect.arrayContaining(["bundle", "index", "activate", "run"]),
+    );
   });
 });

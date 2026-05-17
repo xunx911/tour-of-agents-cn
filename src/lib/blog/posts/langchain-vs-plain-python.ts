@@ -103,7 +103,7 @@ export const langchainVsPlainPython: BlogPost = {
       body: whenItHelps,
     },
   ],
-  cta: "See every LangChain concept rebuilt from scratch in 9 interactive Python lessons.",
+  cta: "See every LangChain concept rebuilt from scratch in 10 interactive Python lessons.",
   relatedLinks: [
     { label: "Learn: Agent = Function", href: "/learn/agent-function" },
     { label: "Learn: Tools = Dict", href: "/learn/tools" },

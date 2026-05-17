@@ -18,12 +18,12 @@ export function LearningPath({ progress }: LearningPathProps) {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-12">
-      <h2 className="text-lg font-semibold mb-2 text-center">9 节课，逐层搭出一个 Agent。</h2>
+      <h2 className="text-lg font-semibold mb-2 text-center">10 节课，逐层搭出一个 Agent。</h2>
       <p className="text-sm text-muted-foreground text-center mb-2">
         可以从任意一课开始。每节课都能在浏览器里直接运行。
       </p>
       <p className="text-xs text-muted-foreground/70 text-center mb-6 max-w-md mx-auto">
-        从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略和计划执行。
+        从一次函数调用开始，逐步理解工具调用、对话记忆、状态管理、安全策略、计划执行和 Skill Bundle。
       </p>
 
       {completedCount > 0 && (

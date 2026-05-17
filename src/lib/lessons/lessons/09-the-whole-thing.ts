@@ -33,7 +33,7 @@ export const lesson09: LessonDefinition = {
       id: "intro",
       prose: `# 把所有部件合起来
 
-九节课，每个概念都对应你在 ChatGPT 或 Claude 里见过的体验：
+前面八课，每个概念都对应你在 ChatGPT 或 Claude 里见过的体验：
 
 | 课程 | 概念 | 你见过的形态 |
 |--------|---------|---------------------|
@@ -46,7 +46,7 @@ export const lesson09: LessonDefinition = {
 | 7 | 策略 | 内容拒绝、安全过滤 |
 | 8 | 计划与执行 | 先拆计划，再逐步执行 |
 
-现在把它们组合成一个完整 Agent 框架。约 60 行，除了 \`json\` 和 \`pyfetch\` 不需要额外依赖。
+现在先把它们组合成一个完整 Agent 框架。约 60 行，除了 \`json\` 和 \`pyfetch\` 不需要额外依赖。下一课会在这个骨架之上，把一组工具、提示词、脚本和参考资料打包成可复用 Skill。
 
 > 这和 LangChain 的 AgentExecutor + memory + guardrails + plan-and-execute 工作流是同一类架构。区别是：这里每一行你都能读懂。`,
     },

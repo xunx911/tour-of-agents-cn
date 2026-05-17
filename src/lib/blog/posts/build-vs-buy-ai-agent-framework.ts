@@ -64,7 +64,7 @@ You will know what LangChain's AgentExecutor is doing because you have written t
 This is not an argument against frameworks. It is an argument against adopting them before you understand what they abstract. The build-vs-buy decision is easy once you know what you are buying. If the framework saves you from writing and maintaining code you understand but do not want to own, that is a good trade. If the framework hides complexity you do not understand, that is technical debt disguised as productivity. The first step is always the same: understand the fundamentals, then decide.`,
     },
   ],
-  cta: "Understand the fundamentals first. Build every agent concept from scratch in 9 interactive Python lessons.",
+  cta: "Understand the fundamentals first. Build every agent concept from scratch in 10 interactive Python lessons.",
   relatedLinks: [
     { label: "Learn: Policy (Guardrails)", href: "/learn/policy" },
     { label: "Learn: Self-Scheduling", href: "/learn/self-scheduling" },
