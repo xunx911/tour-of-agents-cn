@@ -309,14 +309,14 @@ Agent 会记住信息、会调用工具，也可能做危险事。生产环境�
 
 讲稿：
 
-这一课先不要急着讲某个具体 skill。先给学生一个标准定义：Skill 是一个标准化能力包，不是单个工具函数，也不是一句提示词。标准目录通常包含必需的 `SKILL.md`，以及可选的 `scripts/`、`references/`、`assets/`、`templates/`。
+这一课的开场先给标准定义：Skill Bundle 是一种把可复用能力打包给 Agent 使用的目录结构。标准目录通常包含必需的 `SKILL.md`，以及可选的 `scripts/`、`references/`、`assets/`、`templates/`。
 
 讲完标准以后，再进入 `code-review` 和 `meeting-notes` 两个例子。这里要强调渐进式加载：运行器先只读每个 `SKILL.md` 的 frontmatter 建索引；命中任务以后，才加载完整 `SKILL.md`、读取 `references/`，并通过 `run_script(path, payload)` 运行 `scripts/`。课程里是模拟运行，但接口已经为真实沙箱或真实文件系统预留。
 
 点击步骤：
 
 1. 先停在第一步，讲清楚通用目录：`skill-name/SKILL.md`、`scripts/`、`references/`、`assets/`、`templates/`。
-2. 切到第二步，说明 `code-review` 只是一个例子，不是 Skill 的定义本身。
+2. 切到第二步，展示 `code-review` 和 `meeting-notes` 两个具体例子。
 3. 点击样例“审查这段函数：def add(a, b): return a - b”。
 4. 观察 Trace 中先出现发现已安装 skills，然后只读取索引。
 5. 观察 `policy_check` 命中 `code-review` 以后，才出现“加载完整说明”和“按需读取参考资料”。

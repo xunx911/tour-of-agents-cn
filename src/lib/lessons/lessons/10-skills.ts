@@ -51,9 +51,9 @@ export const lesson10: LessonDefinition = {
     {
       id: "standard",
       highlightNodes: ["discover", "index"],
-      prose: `# Skill 先是标准，再是具体例子
+      prose: `# 什么是 Skill Bundle
 
-不要先把 Skill 理解成某一个“代码审查工具”。更准确地说：**Skill 是一个标准化能力包**，它把说明、脚本、参考资料和模板放在一个清晰的目录边界里。
+Skill Bundle 是一种把可复用能力打包给 Agent 使用的标准目录结构。它把使用说明、确定性脚本、参考资料和模板放在同一个边界里，让 Agent 在需要时加载这组能力。
 
 一个通用 Skill Bundle 通常长这样：
 
@@ -66,7 +66,7 @@ skill-name/
   templates/            # 可选：输出模板或项目模板
 \`\`\`
 
-运行器不会一开始就把所有文件塞进模型上下文。它先读每个 \`SKILL.md\` 顶部的少量 metadata，知道“有哪些 skill、什么时候该用”，命中任务后才加载完整内容。`,
+运行器通常先读每个 \`SKILL.md\` 顶部的少量 metadata，知道“有哪些 skill、什么时候该用”。只有任务命中某个 skill 时，才加载完整说明、参考资料和脚本。`,
       code: `STANDARD_BUNDLE_SHAPE = {
     "required": ["SKILL.md"],
     "optional": ["scripts/", "references/", "assets/", "templates/"],
