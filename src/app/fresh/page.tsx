@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description: "用于学习 vibe coding 的生鲜电商微服务完整闭环 Demo。",
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function FreshCommercePage() {
   const store = getFreshStore();
 
