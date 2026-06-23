@@ -2,6 +2,11 @@ import path from "node:path";
 import { createFreshStore } from "./store";
 import { demoBatches, demoProducts } from "./seed-data";
 
+const defaultSqlitePath = () =>
+  process.env.VERCEL
+    ? "/tmp/fresh-commerce.sqlite"
+    : path.join(process.cwd(), ".data", "fresh-commerce.sqlite");
+
 const globalStore = globalThis as typeof globalThis & {
   __freshStore?: ReturnType<typeof createFreshStore>;
 };
@@ -9,13 +14,11 @@ const globalStore = globalThis as typeof globalThis & {
 export function getFreshStore() {
   if (!globalStore.__freshStore) {
     globalStore.__freshStore = createFreshStore(
-      { products: demoProducts, batches: demoBatches },
-      {
-        dbPath:
-          process.env.FRESH_SQLITE_PATH ??
-          path.join(process.cwd(), ".data", "fresh-commerce.sqlite"),
-      },
-    );
+    { products: demoProducts, batches: demoBatches },
+    {
+      dbPath: process.env.FRESH_SQLITE_PATH ?? defaultSqlitePath(),
+    },
+  );
 
     if (globalStore.__freshStore.listOrders().length === 0) {
       const order = globalStore.__freshStore.createOrder({
