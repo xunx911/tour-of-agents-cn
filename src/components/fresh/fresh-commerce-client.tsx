@@ -73,6 +73,7 @@ const formatCurrency = (value: number) => `¥${value.toFixed(1)}`;
 const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 const formatDateTime = (value: string) =>
   new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
