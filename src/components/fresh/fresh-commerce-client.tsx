@@ -109,7 +109,8 @@ export function FreshCommerceClient({
   const [selectedProductId, setSelectedProductId] = useState(initialProducts[0]?.id ?? "");
   const [selectedOrderId, setSelectedOrderId] = useState(initialOrders[0]?.id ?? "");
   const [quantity, setQuantity] = useState(2);
-  const [notice, setNotice] = useState("完整闭环已载入：批次、下单、物流、损耗都可交互。");
+  const [portal, setPortal] = useState<"buyer" | "seller">("buyer");
+  const [notice, setNotice] = useState("欢迎来到 OceanFresh，买家端和卖家端共用同一套订单与批次数据。");
   const [busy, setBusy] = useState(false);
 
   const selectedProduct = products.find((product) => product.id === selectedProductId) ?? products[0];
@@ -234,19 +235,31 @@ export function FreshCommerceClient({
               <Fish />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-500">OceanFresh 鲜链</p>
+              <p className="text-sm font-medium text-slate-500">OceanFresh 鲜链到家</p>
               <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-                生鲜电商微服务实战 Demo
+                当日海鲜冷链商城
               </h1>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary" className="rounded-md">
-              <Snowflake /> 冷链批次
-            </Badge>
-            <Badge variant="secondary" className="rounded-md">
-              <PackageCheck /> API 闭环
-            </Badge>
+            <div className="flex rounded-lg border border-slate-200 bg-white p-1 shadow-sm">
+              <Button
+                size="sm"
+                variant={portal === "buyer" ? "default" : "ghost"}
+                onClick={() => setPortal("buyer")}
+              >
+                <ShoppingBag data-icon="inline-start" />
+                买家端
+              </Button>
+              <Button
+                size="sm"
+                variant={portal === "seller" ? "default" : "ghost"}
+                onClick={() => setPortal("seller")}
+              >
+                <PackageCheck data-icon="inline-start" />
+                卖家端
+              </Button>
+            </div>
             <Button onClick={refreshAll} variant="outline" disabled={busy}>
               <RefreshCw data-icon="inline-start" />
               刷新数据
@@ -254,7 +267,8 @@ export function FreshCommerceClient({
           </div>
         </header>
 
-        <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+        {portal === "buyer" ? (
+        <section className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr]">
           <Card className="overflow-hidden border-slate-200 bg-white/90 shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
             <CardContent className="grid gap-5 p-4 md:grid-cols-[1fr_0.95fr] md:p-5">
               <div className="relative min-h-[390px] overflow-hidden rounded-lg">
@@ -292,7 +306,7 @@ export function FreshCommerceClient({
               <div className="flex flex-col gap-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-sm text-slate-500">买家端商品详情</p>
+                    <p className="text-sm text-slate-500">今日鲜货</p>
                     <p className="mt-1 text-3xl font-semibold">
                       {formatCurrency(selectedProduct?.salePrice ?? 0)}
                     </p>
@@ -342,7 +356,7 @@ export function FreshCommerceClient({
                     <div>
                       <p className="text-sm font-medium">创建买家订单</p>
                       <p className="text-xs text-slate-500">
-                        前端提交 Product，后端自动选择可售批次并扣库存。
+                        选择数量后下单，系统自动匹配可售批次。
                       </p>
                     </div>
                     <Input
@@ -365,11 +379,85 @@ export function FreshCommerceClient({
             </CardContent>
           </Card>
 
+          <Card className="border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
+            <CardHeader>
+              <CardTitle>我的订单</CardTitle>
+              <CardDescription>查看配送进度和完整冷链轨迹。</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-5">
+              <div className="grid gap-3">
+                {orders.map((order) => (
+                  <button
+                    key={order.id}
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className={`rounded-lg border p-4 text-left transition ${
+                      order.id === selectedOrder?.id
+                        ? "border-slate-950 bg-slate-950 text-white"
+                        : "border-slate-200 bg-white hover:border-slate-400"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium">{order.id}</p>
+                        <p className="mt-1 text-xs opacity-70">
+                          {order.items.map((item) => item.productName).join("、")}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="rounded-md">
+                        {statusLabel[order.logisticsStatus]}
+                      </Badge>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <Separator />
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <SummaryTile label="订单金额" value={formatCurrency(selectedOrder?.totalAmount ?? 0)} />
+                <SummaryTile
+                  label="物流状态"
+                  value={selectedOrder ? statusLabel[selectedOrder.logisticsStatus] : "--"}
+                />
+                <SummaryTile label="商品数量" value={String(selectedOrder?.items.length ?? 0)} />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {(selectedOrder?.logisticsTracks ?? []).map((track, index) => (
+                  <div key={`${track.trackedAt}-${index}`} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white">
+                        <Clock3 />
+                      </div>
+                      {index < (selectedOrder?.logisticsTracks.length ?? 0) - 1 ? (
+                        <div className="h-full min-h-8 w-px bg-slate-200" />
+                      ) : null}
+                    </div>
+                    <div className="pb-4">
+                      <p className="text-sm font-medium">{statusLabel[track.status]}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {formatDateTime(track.trackedAt)} · {track.location}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">{track.note}</p>
+                    </div>
+                  </div>
+                ))}
+                {selectedOrder?.logisticsTracks.length === 0 ? (
+                  <p className="rounded-lg border border-dashed p-6 text-sm text-slate-500">
+                    商家发货后，这里会显示完整配送轨迹。
+                  </p>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+        ) : (
+        <section className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr]">
           <Card className="border-slate-200 bg-slate-950 text-white shadow-[0_24px_80px_rgba(15,23,42,0.16)]">
             <CardHeader>
-              <CardTitle className="text-xl">运营控制台</CardTitle>
+              <CardTitle className="text-xl">卖家运营中心</CardTitle>
               <CardDescription className="text-slate-300">
-                批次、订单、物流、损耗率集中在一个后台工作台。
+                管理商品批次、冷链物流、库存和运输损耗。
               </CardDescription>
               <CardAction>
                 <Badge className="rounded-md bg-cyan-300 text-slate-950 hover:bg-cyan-300">
@@ -447,21 +535,11 @@ export function FreshCommerceClient({
               </div>
             </CardContent>
           </Card>
-        </section>
 
-        <Tabs defaultValue="buyer" className="flex flex-col gap-5">
-          <TabsList className="w-full justify-start rounded-lg bg-white/80 p-1 shadow-sm md:w-fit">
-            <TabsTrigger value="buyer">买家端体验</TabsTrigger>
-            <TabsTrigger value="admin">后台运营</TabsTrigger>
-            <TabsTrigger value="api">API 学习</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="buyer" className="mt-0">
-            <section className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr]">
               <Card className="border-slate-200 bg-white">
                 <CardHeader>
-                  <CardTitle>订单详情与完整物流轨迹</CardTitle>
-                  <CardDescription>买家只看到履约过程，不展示后台损耗率。</CardDescription>
+                  <CardTitle>订单处理</CardTitle>
+                  <CardDescription>商家查看订单、推进物流，买家端同步看到配送轨迹。</CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
                   {orders.map((order) => (
@@ -492,57 +570,6 @@ export function FreshCommerceClient({
 
               <Card className="border-slate-200 bg-white">
                 <CardHeader>
-                  <CardTitle>{selectedOrder?.id ?? "暂无订单"}</CardTitle>
-                  <CardDescription>
-                    {selectedOrder
-                      ? `${selectedOrder.receiverName} · ${selectedOrder.receiverAddress}`
-                      : "创建订单后会显示履约信息"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-5">
-                  <div className="grid gap-3 md:grid-cols-3">
-                    <SummaryTile label="订单金额" value={formatCurrency(selectedOrder?.totalAmount ?? 0)} />
-                    <SummaryTile
-                      label="物流状态"
-                      value={selectedOrder ? statusLabel[selectedOrder.logisticsStatus] : "--"}
-                    />
-                    <SummaryTile label="商品数量" value={String(selectedOrder?.items.length ?? 0)} />
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    {(selectedOrder?.logisticsTracks ?? []).map((track, index) => (
-                      <div key={`${track.trackedAt}-${index}`} className="flex gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className="flex size-8 items-center justify-center rounded-full bg-slate-950 text-white">
-                            <Clock3 />
-                          </div>
-                          {index < (selectedOrder?.logisticsTracks.length ?? 0) - 1 ? (
-                            <div className="h-full min-h-8 w-px bg-slate-200" />
-                          ) : null}
-                        </div>
-                        <div className="pb-4">
-                          <p className="text-sm font-medium">{statusLabel[track.status]}</p>
-                          <p className="mt-1 text-sm text-slate-500">
-                            {formatDateTime(track.trackedAt)} · {track.location}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-600">{track.note}</p>
-                        </div>
-                      </div>
-                    ))}
-                    {selectedOrder?.logisticsTracks.length === 0 ? (
-                      <p className="rounded-lg border border-dashed p-6 text-sm text-slate-500">
-                        后台推进物流后，买家端会看到完整轨迹。
-                      </p>
-                    ) : null}
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="admin" className="mt-0">
-            <section className="grid gap-5 lg:grid-cols-2">
-              <Card className="border-slate-200 bg-white">
-                <CardHeader>
                   <CardTitle>批次管理</CardTitle>
                   <CardDescription>海鲜业务的核心数据：产地、捕捞、到店、库存、进价、损耗。</CardDescription>
                 </CardHeader>
@@ -568,68 +595,8 @@ export function FreshCommerceClient({
                   ))}
                 </CardContent>
               </Card>
-
-              <Card className="border-slate-200 bg-white">
-                <CardHeader>
-                  <CardTitle>订单管理</CardTitle>
-                  <CardDescription>后台查看订单、推进物流，买家端同步看到履约轨迹。</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                  {orders.map((order) => (
-                    <div key={order.id} className="rounded-lg border border-slate-200 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">{order.id}</p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {order.receiverName} · {formatCurrency(order.totalAmount)}
-                          </p>
-                        </div>
-                        <Badge className="rounded-md">{statusLabel[order.logisticsStatus]}</Badge>
-                      </div>
-                      <div className="mt-4 flex flex-col gap-2">
-                        {order.items.map((item) => (
-                          <div key={`${order.id}-${item.batchNo}`} className="flex justify-between gap-3 text-sm">
-                            <span>{item.productName}</span>
-                            <span className="text-slate-500">
-                              {item.quantity} 份 · {item.batchNo}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </section>
-          </TabsContent>
-
-          <TabsContent value="api" className="mt-0">
-            <Card className="border-slate-200 bg-white">
-              <CardHeader>
-                <CardTitle>第一阶段 API 闭环</CardTitle>
-                <CardDescription>
-                  页面按钮调用这些接口；学习重点是从页面需求反推后端 API。
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-2">
-                {[
-                  "GET /api/fresh/products",
-                  "GET /api/fresh/products/{productId}",
-                  "POST /api/fresh/orders",
-                  "GET /api/fresh/orders/{orderId}",
-                  "GET /api/fresh/admin/orders",
-                  "PATCH /api/fresh/admin/orders/{orderId}/logistics",
-                  "GET /api/fresh/admin/product-batches",
-                  "PATCH /api/fresh/admin/product-batches/{batchId}/loss-rate",
-                ].map((endpoint) => (
-                  <div key={endpoint} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <code className="text-sm font-medium">{endpoint}</code>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        </section>
+        )}
 
         <footer className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
           {notice}
